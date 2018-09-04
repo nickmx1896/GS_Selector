@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
         TextView textView3 = (TextView)findViewById(R.id.textView3);
         TextView textView6 = (TextView)findViewById(R.id.textView6);
-        textView3.setText(getGovernorLittle());
-        textView6.setText(getGovernorBig());
+        textView3.setText("LITTLE Governor: " + getGovernorLittle());
+        textView6.setText("big Governor: " + getGovernorBig());
 
     }
 
