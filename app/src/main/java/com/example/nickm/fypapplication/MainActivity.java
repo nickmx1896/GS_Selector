@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         Button litSA = findViewById(R.id.button6);
         Button litSM = findViewById(R.id.button7);
 
-        bigP.setOnClickListener(new View.OnClickListener(){
+        bigP.setOnClickListener(new View.OnClickListener() {
             @Override
             //On click function
             public void onClick(View view) {
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        bigSA.setOnClickListener(new View.OnClickListener(){
+        bigSA.setOnClickListener(new View.OnClickListener() {
             @Override
             //On click function
             public void onClick(View view) {
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        bigSM.setOnClickListener(new View.OnClickListener(){
+        bigSM.setOnClickListener(new View.OnClickListener() {
             @Override
             //On click function
             public void onClick(View view) {
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        litP.setOnClickListener(new View.OnClickListener(){
+        litP.setOnClickListener(new View.OnClickListener() {
             @Override
             //On click function
             public void onClick(View view) {
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        litSA.setOnClickListener(new View.OnClickListener(){
+        litSA.setOnClickListener(new View.OnClickListener() {
             @Override
             //On click function
             public void onClick(View view) {
@@ -94,17 +94,68 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        litSM.setOnClickListener(new View.OnClickListener(){
+        litSM.setOnClickListener(new View.OnClickListener() {
             @Override
             //On click function
             public void onClick(View view) {
                 ChangeGovernorLittle("smartmax");
             }
         });
+
+
+        Button noop = findViewById(R.id.button8);
+        Button deadline = findViewById(R.id.button9);
+        Button cfq = findViewById(R.id.button10);
+        Button fiops = findViewById(R.id.button11);
+        Button zen = findViewById(R.id.button12);
+
+        noop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("noop");
+            }
+        });
+
+        deadline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("deadline");
+            }
+        });
+
+        cfq.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("cfq");
+            }
+        });
+
+        fiops.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("fiops");
+            }
+        });
+
+        zen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("zen");
+            }
+        });
     }
 
-    public void showNotification(View v)
-    {
+    public void showNotification(View v) {
         //PendingIntent update = PendingIntent.getActivity(this,0,update,PendingIntent.FLAG_ONE_SHOT);
         // helps sets certain parameters of the notification, like icons etc
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -112,18 +163,19 @@ public class MainActivity extends AppCompatActivity {
                 .setContentTitle("CPU Details");
         builder.setStyle(new NotificationCompat.InboxStyle()    // allows the notification to become bigger
                 .addLine("big Governor:   " + getGovernorBig())
-                .addLine("LITTLE Governor:   " + getGovernorLittle()));
+                .addLine("LITTLE Governor:   " + getGovernorLittle())
+                .addLine("Current Scheduler:    " + getScheduler()));
         //builder.addAction(R.mipmap.ic_launcher, "refresh",update);
         NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NM.notify(0,builder.build());
+        NM.notify(0, builder.build());
 
     }
 
 
-    public void refresh (View v){
-        finish();
-        startActivity(getIntent());
-    }
+//    public void refresh(View v) {
+//        finish();
+//        startActivity(getIntent());
+//    }
 
     private String getGovernorBig() {
         StringBuffer sb = new StringBuffer();
@@ -138,14 +190,14 @@ public class MainActivity extends AppCompatActivity {
 
                 if (br != null)
                     br.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         return sb.toString();
     }
+
     private String getGovernorLittle() {
         StringBuffer sb = new StringBuffer();
         String file = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";  // Gets governor for LITTLE cores
@@ -159,45 +211,42 @@ public class MainActivity extends AppCompatActivity {
 
                 if (br != null)
                     br.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         return sb.toString();
     }
-    public void ChangeGovernorBig (String governor){
-        String[] newGovernor = {"echo "+governor+" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
-                "echo "+governor+" > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
-                "echo "+governor+" > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
-                "echo "+governor+" > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
+
+    public void ChangeGovernorBig(String governor) {
+        String[] newGovernor = {"echo " + governor + " > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
         RunCommand(newGovernor);
         finish();
         startActivity(getIntent());
     }
 
-   public void ChangeGovernorLittle (String governor){
-        String[] newGovernor = {"echo "+governor+" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-                "echo "+governor+" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
-                "echo "+governor+" > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
-                "echo "+governor+" > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+    public void ChangeGovernorLittle(String governor) {
+        String[] newGovernor = {"echo " + governor + " > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
         RunCommand(newGovernor);
         finish();
         startActivity(getIntent());
     }
-/*
-       public void Performance (View v){
-           String[] performance = {"echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-                   "echo performance > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
-                   "echo performance > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
-                   "echo performance > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
-           RunCommand(performance);
-           finish();
-           startActivity(getIntent());
-       }
-*/
-    void RunCommand(String[] cmd) {
+
+    public void ChangeScheduler(String scheduler){
+        String[] newScheduler = {"echo "+scheduler+" > /sys/block/sda/queue/scheduler"};
+        RunCommand(newScheduler);
+        finish();
+        startActivity(getIntent());
+    }
+
+    String RunCommand(String[] cmd) {
 
         //  run any terminal command through this function, that doesn't return anything
         Process process;
@@ -210,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             // the command will be written
             if (os != null) {
                 //  iterate through the command string
-                for (int i = 0; i < cmd.length; i++){
+                for (int i = 0; i < cmd.length; i++) {
                     os.writeBytes(cmd[i] + "\n");
                     os.flush();
                 }
@@ -219,42 +268,34 @@ public class MainActivity extends AppCompatActivity {
             // command to exit the shell command
             os.writeBytes("exit" + "\n");
             os.flush();
-
-            try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            // close the DataOutputStream
             os.close();
+            //////////////////////////////////////////////////////////////////////////
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            int read;
+            char[] buffer = new char[4096];
+            StringBuffer output = new StringBuffer();
+            while ((read = reader.read(buffer)) > 0) {
+                output.append(buffer, 0, read);
+            }
+            reader.close();
+            //////////////////////////////////////////////////////////////////////////
+
+            process.waitFor();
+
+            return output.toString();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        return "";
     }
 
 
-
-
     private String getScheduler() {
-        StringBuffer sb = new StringBuffer();
-
-        String file = "/sys/block/sda/queue/scheduler";  // Gets governor for big cores
-        if (new File(file).exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(new File(file)));
-                String aLine;
-                while ((aLine = br.readLine()) != null)
-                    sb.append(aLine + "\n");
-                if (br != null)
-                    br.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (sb.toString().length() == 0) {
-            return "File not available";
-        }
-        return sb.toString();
+        String[] cmd = {"cat /sys/block/sda/queue/scheduler\n"};
+       return RunCommand(cmd);
     }
 }
