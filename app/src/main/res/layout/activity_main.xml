@@ -18,6 +18,44 @@
         android:text="TextView"
         android:textSize="18sp" />
 
+    <!--<TextView-->
+        <!--android:id="@+id/textView3"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="37dp"-->
+        <!--android:layout_marginEnd="8dp"-->
+        <!--android:layout_marginStart="8dp"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:text="TextView"-->
+        <!--android:textSize="18sp" />-->
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show in Notification"
+        android:onClick="showNotification"/>
+
+    <Button
+        android:id="@+id/button6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="PerformanceBig"
+        android:text="big Performance" />
+
+    <Button
+        android:id="@+id/button8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="SmartAssV2Big"
+        android:text="big Smartass" />
+
+    <Button
+        android:id="@+id/button7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="SmartMaxBig"
+        android:text="big smartmax" />
+
     <TextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
@@ -27,6 +65,27 @@
         android:layout_marginTop="8dp"
         android:text="TextView"
         android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LITTLE Performance"
+        android:onClick="Performance"/>
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="SmartAssV2"
+        android:text="LITTLE SmartAss" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="SmartMax"
+        android:text="LITTLE smartmax" />
 
     <TextView
         android:id="@+id/textView3"
@@ -39,16 +98,10 @@
         android:textSize="18sp" />
 
     <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Show in Notification"
-        android:onClick="showNotification"/>
-
-    <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Refresh"
-        android:onClick="refresh"/>
+        android:onClick="refresh"
+        android:text="Refresh" />
+
 </LinearLayout>

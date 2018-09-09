@@ -8,13 +8,20 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+
+import static java.lang.System.in;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // view object for the notification
+        View v = new View(this);
 
         String little = "LITTLE Governor: " + getGovernorLittle();
         String big = "big Governor: " + getGovernorBig();
@@ -30,10 +39,21 @@ public class MainActivity extends AppCompatActivity {
         TextView textView1 = (TextView)findViewById(R.id.textView1);
         TextView textView2 = (TextView)findViewById(R.id.textView2);
         TextView textView3 = (TextView)findViewById(R.id.textView3);
-        textView1.setText(little);
-        textView2.setText(big);
+        textView1.setText(big);
+        textView2.setText(little);
         textView3.setText(getScheduler());
 
+        // show notification on startup
+        showNotification(v);
+
+//        Button bigP = (Button) findViewById(R.id.button6);
+//        bigP.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            //On click function
+//            public void onClick(View view) {
+//                PerformanceBig(view);
+//            }
+//        });
 
     }
 
@@ -61,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
     private String getGovernorBig() {
         StringBuffer sb = new StringBuffer();
-
-        //String file = "/proc/cpuinfo";  // Gets most cpu info (but not the governor)
         String file = "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor";  // Gets governor for big cores
 
         if (new File(file).exists()) {
@@ -84,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
     }
     private String getGovernorLittle() {
         StringBuffer sb = new StringBuffer();
-
-        //String file = "/proc/cpuinfo";  // Gets most cpu info (but not the governor)
         String file = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";  // Gets governor for LITTLE cores
 
         if (new File(file).exists()) {
@@ -105,19 +121,111 @@ public class MainActivity extends AppCompatActivity {
 
         return sb.toString();
     }
+    public void Performance (View v){
+        String[] performance = {"echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                "echo performance > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                "echo performance > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                "echo performance > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+        RunCommand(performance);
+        finish();
+        startActivity(getIntent());
+    }
+    public void SmartMax (View v){
+        String[] performance = {"echo smartmax > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                "echo smartmax > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                "echo smartmax > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                "echo smartmax > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+        RunCommand(performance);
+        finish();
+        startActivity(getIntent());
+    }
+    public void SmartAssV2 (View v){
+        String[] performance = {"echo smartassV2 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                "echo smartassV2 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                "echo smartassV2 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                "echo smartassV2 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+        RunCommand(performance);
+        finish();
+        startActivity(getIntent());
+    }
+
+
+
+    public void PerformanceBig (View v){
+        String[] performance = {"echo performance > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                "echo performance > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
+                "echo performance > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
+                "echo performance > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
+        RunCommand(performance);
+        finish();
+        startActivity(getIntent());
+    }
+    public void SmartMaxBig (View v){
+        String[] performance = {"echo smartmax > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                "echo smartmax > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
+                "echo smartmax > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
+                "echo smartmax > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
+        RunCommand(performance);
+        finish();
+        startActivity(getIntent());
+    }
+    public void SmartAssV2Big (View v){
+        String[] performance = {"echo smartassV2 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                "echo smartassV2 > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
+                "echo smartassV2 > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
+                "echo smartassV2 > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
+        RunCommand(performance);
+        finish();
+        startActivity(getIntent());
+    }
+    void RunCommand(String[] cmd) {
+
+        //  run any terminal command through this function, that doesn't return anything
+        Process process;
+        try {
+            //  run as root
+            process = Runtime.getRuntime().exec("su");
+
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+
+            // the command will be written
+            if (os != null) {
+                //  iterate through the command string
+                for (int i = 0; i < cmd.length; i++){
+                    os.writeBytes(cmd[i] + "\n");
+                    os.flush();
+                }
+            }
+
+            // command to exit the shell command
+            os.writeBytes("exit" + "\n");
+            os.flush();
+
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // close the DataOutputStream
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
     private String getScheduler() {
         StringBuffer sb = new StringBuffer();
 
-        //String file = "/proc/cpuinfo";  // Gets most cpu info (but not the governor)
         String file = "/sys/block/sda/queue/scheduler";  // Gets governor for big cores
-
         if (new File(file).exists()) {
             try {
                 BufferedReader br = new BufferedReader(new FileReader(new File(file)));
                 String aLine;
                 while ((aLine = br.readLine()) != null)
                     sb.append(aLine + "\n");
-
                 if (br != null)
                     br.close();
             }
@@ -125,7 +233,9 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
+        if (sb.toString().length() == 0) {
+            return "File not available";
+        }
         return sb.toString();
     }
 }
