@@ -23,7 +23,7 @@ import java.io.OutputStream;
 
 import static java.lang.System.in;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +31,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // view object for the notification
-        View v = new View(this);
+        View notification = new View(this);
 
-        String little = "LITTLE Governor: " + getGovernorLittle();
-        String big = "big Governor: " + getGovernorBig();
-        final String internal = "sda";
-        final String ext = "mmcblk0";
+        String little = "LITTLE Governor: " + getGovernor("little");
+        String big = "big Governor: " + getGovernor("big");
 
         TextView textView1 = findViewById(R.id.textView1);  //  big governor
         textView1.setText(big);
@@ -45,175 +43,129 @@ public class MainActivity extends AppCompatActivity {
         textView2.setText(little);
 
         TextView textView3 = findViewById(R.id.textView3);  //  int scheduler
-        textView3.setText(getScheduler(internal));
+        textView3.setText(getScheduler("sda"));
 
         TextView textView4 = findViewById(R.id.textView4);  //  ext scheduler
-        textView4.setText(getScheduler(ext));
+        textView4.setText(getScheduler("mmcblk0"));
 
         // show notification on startup
-        showNotification(v);
+        showNotification(notification);
 
+        // big governor buttons
         Button bigP = findViewById(R.id.button2);
+        bigP.setOnClickListener(this);
         Button bigSA = findViewById(R.id.button3);
+        bigSA.setOnClickListener(this);
         Button bigSM = findViewById(R.id.button4);
+        bigSM.setOnClickListener(this);
 
+        // little governor buttons
         Button litP = findViewById(R.id.button5);
+        litP.setOnClickListener(this);
         Button litSA = findViewById(R.id.button6);
+        litSA.setOnClickListener(this);
         Button litSM = findViewById(R.id.button7);
-        
+        litSM.setOnClickListener(this);
 
-        bigP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                ChangeGovernorBig("performance");
-            }
-        });
-
-        bigSA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                ChangeGovernorBig("smartassV2");
-            }
-        });
-
-        bigSM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                ChangeGovernorBig("smartmax");
-            }
-        });
-
-        litP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                ChangeGovernorLittle("performance");
-            }
-        });
-
-        litSA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                ChangeGovernorLittle("smartassV2");
-            }
-        });
-
-        litSM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                ChangeGovernorLittle("smartmax");
-            }
-        });
-
-
+        // int scheduler buttons
         Button noop = findViewById(R.id.button8);
+        noop.setOnClickListener(this);
         Button deadline = findViewById(R.id.button9);
+        deadline.setOnClickListener(this);
         Button cfq = findViewById(R.id.button10);
+        cfq.setOnClickListener(this);
         Button fiops = findViewById(R.id.button11);
+        fiops.setOnClickListener(this);
         Button zen = findViewById(R.id.button12);
+        zen.setOnClickListener(this);
 
-        noop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("noop", internal);
-            }
-        });
-
-        deadline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("deadline", internal);
-            }
-        });
-
-        cfq.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("cfq", internal);
-            }
-        });
-
-        fiops.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("fiops", internal);
-            }
-        });
-
-        zen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("zen", internal);
-            }
-        });
-
+        // ext scheduler buttons
         Button noop2 = findViewById(R.id.button13);
+        noop2.setOnClickListener(this);
         Button deadline2 = findViewById(R.id.button14);
+        deadline2.setOnClickListener(this);
         Button cfq2 = findViewById(R.id.button15);
+        cfq2.setOnClickListener(this);
         Button fiops2 = findViewById(R.id.button16);
+        fiops2.setOnClickListener(this);
         Button zen2 = findViewById(R.id.button17);
+        zen2.setOnClickListener(this);
 
-        noop2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("noop",ext);
-            }
-        });
-
-        deadline2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("deadline",ext);
-            }
-        });
-
-        cfq2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("cfq",ext);
-            }
-        });
-
-        fiops2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("fiops",ext);
-            }
-        });
-
-        zen2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //On click function
-            public void onClick(View view) {
-                // set scheduler method
-                ChangeScheduler("zen",ext);
-            }
-        });
     }
+    @Override
+    public void onClick(View v) {
+        // default method for handling onClick Events..
+        //  doesn't include show notification button
+        switch (v.getId()) {
 
+            case R.id.button2:
+                ChangeGovernorBig("performance");
+                break;
+
+            case R.id.button3:
+                ChangeGovernorBig("smartassV2");
+                break;
+
+            case R.id.button4:
+                ChangeGovernorBig("smartmax");
+                break;
+
+            case R.id.button5:
+                ChangeGovernorLittle("performance");
+                break;
+
+            case R.id.button6:
+                ChangeGovernorLittle("smartassV2");
+                break;
+
+            case R.id.button7:
+                ChangeGovernorLittle("smartmax");
+                break;
+            case R.id.button8:
+                ChangeScheduler("noop", "sda");
+                break;
+
+            case R.id.button9:
+                ChangeScheduler("deadline", "sda");
+                break;
+
+            case R.id.button10:
+                ChangeScheduler("cfq", "sda");
+                break;
+
+            case R.id.button11:
+                ChangeScheduler("fiops", "sda");
+                break;
+
+            case R.id.button12:
+                ChangeScheduler("zen", "sda");
+                break;
+
+            case R.id.button13:
+                ChangeScheduler("noop", "mmcblk0");
+                break;
+
+            case R.id.button14:
+                ChangeScheduler("deadline", "mmcblk0");
+                break;
+
+            case R.id.button15:
+                ChangeScheduler("cfq", "mmcblk0");
+                break;
+
+            case R.id.button16:
+                ChangeScheduler("fiops", "mmcblk0");
+                break;
+
+            case R.id.button17:
+                ChangeScheduler("zen", "mmcblk0");
+                break;
+            default:
+                finish();
+                startActivity(getIntent());
+                break;
+        }
+    }
     public void showNotification(View v) {
         //PendingIntent update = PendingIntent.getActivity(this,0,update,PendingIntent.FLAG_ONE_SHOT);
         // helps sets certain parameters of the notification, like icons etc
@@ -221,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
         builder.setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("CPU Details");
         builder.setStyle(new NotificationCompat.InboxStyle()    // allows the notification to become bigger
-                .addLine("big Governor:   " + getGovernorBig())
-                .addLine("LITTLE Governor:   " + getGovernorLittle())
+                .addLine("big Governor:   " + getGovernor("big"))
+                .addLine("LITTLE Governor:   " + getGovernor("little"))
                 .addLine("Int IO Scheduler:    " + getScheduler("sda"))
                 .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0")));
         //builder.addAction(R.mipmap.ic_launcher, "refresh",update);
@@ -237,9 +189,16 @@ public class MainActivity extends AppCompatActivity {
 //        startActivity(getIntent());
 //    }
 
-    private String getGovernorBig() {
+    private String getGovernor(String g) {
         StringBuffer sb = new StringBuffer();
-        String file = "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor";  // Gets governor for big cores
+        String gov;
+        if (g == "big") {
+            gov = "4";
+        }
+        else {
+            gov = "0";
+        }
+        String file = "/sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor";  // Gets governor for big cores
 
         if (new File(file).exists()) {
             try {
@@ -258,26 +217,6 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    private String getGovernorLittle() {
-        StringBuffer sb = new StringBuffer();
-        String file = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";  // Gets governor for LITTLE cores
-
-        if (new File(file).exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(new File(file)));
-                String aLine;
-                while ((aLine = br.readLine()) != null)
-                    sb.append(aLine + "\n");
-
-                if (br != null)
-                    br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return sb.toString();
-    }
 
     public void ChangeGovernorBig(String governor) {
         String[] newGovernor = {"echo " + governor + " > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
