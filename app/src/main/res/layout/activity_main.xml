@@ -29,31 +29,28 @@
         <!--android:textSize="18sp" />-->
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show in Notification"
         android:onClick="showNotification"/>
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="PerformanceBig"
         android:text="big Performance" />
 
     <Button
-        android:id="@+id/button8"
+        android:id="@+id/button3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="SmartAssV2Big"
         android:text="big Smartass" />
 
     <Button
-        android:id="@+id/button7"
+        android:id="@+id/button4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="SmartMaxBig"
         android:text="big smartmax" />
 
     <TextView
@@ -67,24 +64,21 @@
         android:textSize="18sp" />
 
     <Button
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="LITTLE Performance"
-        android:onClick="Performance"/>
-
-    <Button
         android:id="@+id/button5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="SmartAssV2"
+        android:text="LITTLE Performance"/>
+
+    <Button
+        android:id="@+id/button6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="LITTLE SmartAss" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/button7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="SmartMax"
         android:text="LITTLE smartmax" />
 
     <TextView
@@ -98,7 +92,7 @@
         android:textSize="18sp" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button8"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="refresh"

@@ -36,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
         String little = "LITTLE Governor: " + getGovernorLittle();
         String big = "big Governor: " + getGovernorBig();
 
-        TextView textView1 = (TextView)findViewById(R.id.textView1);
-        TextView textView2 = (TextView)findViewById(R.id.textView2);
-        TextView textView3 = (TextView)findViewById(R.id.textView3);
+        TextView textView1 = findViewById(R.id.textView1);
+        TextView textView2 = findViewById(R.id.textView2);
+        TextView textView3 = findViewById(R.id.textView3);
         textView1.setText(big);
         textView2.setText(little);
         textView3.setText(getScheduler());
@@ -46,15 +46,61 @@ public class MainActivity extends AppCompatActivity {
         // show notification on startup
         showNotification(v);
 
-//        Button bigP = (Button) findViewById(R.id.button6);
-//        bigP.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            //On click function
-//            public void onClick(View view) {
-//                PerformanceBig(view);
-//            }
-//        });
+        Button bigP = findViewById(R.id.button2);
+        Button bigSA = findViewById(R.id.button3);
+        Button bigSM = findViewById(R.id.button4);
 
+        Button litP = findViewById(R.id.button5);
+        Button litSA = findViewById(R.id.button6);
+        Button litSM = findViewById(R.id.button7);
+
+        bigP.setOnClickListener(new View.OnClickListener(){
+            @Override
+            //On click function
+            public void onClick(View view) {
+                ChangeGovernorBig("performance");
+            }
+        });
+
+        bigSA.setOnClickListener(new View.OnClickListener(){
+            @Override
+            //On click function
+            public void onClick(View view) {
+                ChangeGovernorBig("smartassV2");
+            }
+        });
+
+        bigSM.setOnClickListener(new View.OnClickListener(){
+            @Override
+            //On click function
+            public void onClick(View view) {
+                ChangeGovernorBig("smartmax");
+            }
+        });
+
+        litP.setOnClickListener(new View.OnClickListener(){
+            @Override
+            //On click function
+            public void onClick(View view) {
+                ChangeGovernorLittle("performance");
+            }
+        });
+
+        litSA.setOnClickListener(new View.OnClickListener(){
+            @Override
+            //On click function
+            public void onClick(View view) {
+                ChangeGovernorLittle("smartassV2");
+            }
+        });
+
+        litSM.setOnClickListener(new View.OnClickListener(){
+            @Override
+            //On click function
+            public void onClick(View view) {
+                ChangeGovernorLittle("smartmax");
+            }
+        });
     }
 
     public void showNotification(View v)
@@ -121,63 +167,36 @@ public class MainActivity extends AppCompatActivity {
 
         return sb.toString();
     }
-    public void Performance (View v){
-        String[] performance = {"echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-                "echo performance > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
-                "echo performance > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
-                "echo performance > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
-        RunCommand(performance);
-        finish();
-        startActivity(getIntent());
-    }
-    public void SmartMax (View v){
-        String[] performance = {"echo smartmax > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-                "echo smartmax > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
-                "echo smartmax > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
-                "echo smartmax > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
-        RunCommand(performance);
-        finish();
-        startActivity(getIntent());
-    }
-    public void SmartAssV2 (View v){
-        String[] performance = {"echo smartassV2 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-                "echo smartassV2 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
-                "echo smartassV2 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
-                "echo smartassV2 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
-        RunCommand(performance);
+    public void ChangeGovernorBig (String governor){
+        String[] newGovernor = {"echo "+governor+" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                "echo "+governor+" > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
+                "echo "+governor+" > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
+                "echo "+governor+" > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
+        RunCommand(newGovernor);
         finish();
         startActivity(getIntent());
     }
 
-
-
-    public void PerformanceBig (View v){
-        String[] performance = {"echo performance > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
-                "echo performance > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
-                "echo performance > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
-                "echo performance > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
-        RunCommand(performance);
+   public void ChangeGovernorLittle (String governor){
+        String[] newGovernor = {"echo "+governor+" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                "echo "+governor+" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                "echo "+governor+" > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                "echo "+governor+" > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+        RunCommand(newGovernor);
         finish();
         startActivity(getIntent());
     }
-    public void SmartMaxBig (View v){
-        String[] performance = {"echo smartmax > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
-                "echo smartmax > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
-                "echo smartmax > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
-                "echo smartmax > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
-        RunCommand(performance);
-        finish();
-        startActivity(getIntent());
-    }
-    public void SmartAssV2Big (View v){
-        String[] performance = {"echo smartassV2 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
-                "echo smartassV2 > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
-                "echo smartassV2 > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
-                "echo smartassV2 > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
-        RunCommand(performance);
-        finish();
-        startActivity(getIntent());
-    }
+/*
+       public void Performance (View v){
+           String[] performance = {"echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                   "echo performance > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                   "echo performance > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                   "echo performance > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+           RunCommand(performance);
+           finish();
+           startActivity(getIntent());
+       }
+*/
     void RunCommand(String[] cmd) {
 
         //  run any terminal command through this function, that doesn't return anything
