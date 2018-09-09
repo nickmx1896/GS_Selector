@@ -35,13 +35,20 @@ public class MainActivity extends AppCompatActivity {
 
         String little = "LITTLE Governor: " + getGovernorLittle();
         String big = "big Governor: " + getGovernorBig();
+        final String internal = "sda";
+        final String ext = "mmcblk0";
 
-        TextView textView1 = findViewById(R.id.textView1);
-        TextView textView2 = findViewById(R.id.textView2);
-        TextView textView3 = findViewById(R.id.textView3);
+        TextView textView1 = findViewById(R.id.textView1);  //  big governor
         textView1.setText(big);
+
+        TextView textView2 = findViewById(R.id.textView2);  //  little governor
         textView2.setText(little);
-        textView3.setText(getScheduler());
+
+        TextView textView3 = findViewById(R.id.textView3);  //  int scheduler
+        textView3.setText(getScheduler(internal));
+
+        TextView textView4 = findViewById(R.id.textView4);  //  ext scheduler
+        textView4.setText(getScheduler(ext));
 
         // show notification on startup
         showNotification(v);
@@ -53,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         Button litP = findViewById(R.id.button5);
         Button litSA = findViewById(R.id.button6);
         Button litSM = findViewById(R.id.button7);
+        
 
         bigP.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             //On click function
             public void onClick(View view) {
                 // set scheduler method
-                ChangeScheduler("noop");
+                ChangeScheduler("noop", internal);
             }
         });
 
@@ -123,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             //On click function
             public void onClick(View view) {
                 // set scheduler method
-                ChangeScheduler("deadline");
+                ChangeScheduler("deadline", internal);
             }
         });
 
@@ -132,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             //On click function
             public void onClick(View view) {
                 // set scheduler method
-                ChangeScheduler("cfq");
+                ChangeScheduler("cfq", internal);
             }
         });
 
@@ -141,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             //On click function
             public void onClick(View view) {
                 // set scheduler method
-                ChangeScheduler("fiops");
+                ChangeScheduler("fiops", internal);
             }
         });
 
@@ -150,7 +158,58 @@ public class MainActivity extends AppCompatActivity {
             //On click function
             public void onClick(View view) {
                 // set scheduler method
-                ChangeScheduler("zen");
+                ChangeScheduler("zen", internal);
+            }
+        });
+
+        Button noop2 = findViewById(R.id.button13);
+        Button deadline2 = findViewById(R.id.button14);
+        Button cfq2 = findViewById(R.id.button15);
+        Button fiops2 = findViewById(R.id.button16);
+        Button zen2 = findViewById(R.id.button17);
+
+        noop2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("noop",ext);
+            }
+        });
+
+        deadline2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("deadline",ext);
+            }
+        });
+
+        cfq2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("cfq",ext);
+            }
+        });
+
+        fiops2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("fiops",ext);
+            }
+        });
+
+        zen2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //On click function
+            public void onClick(View view) {
+                // set scheduler method
+                ChangeScheduler("zen",ext);
             }
         });
     }
@@ -164,7 +223,8 @@ public class MainActivity extends AppCompatActivity {
         builder.setStyle(new NotificationCompat.InboxStyle()    // allows the notification to become bigger
                 .addLine("big Governor:   " + getGovernorBig())
                 .addLine("LITTLE Governor:   " + getGovernorLittle())
-                .addLine("Current Scheduler:    " + getScheduler()));
+                .addLine("Int IO Scheduler:    " + getScheduler("sda"))
+                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0")));
         //builder.addAction(R.mipmap.ic_launcher, "refresh",update);
         NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NM.notify(0, builder.build());
@@ -239,8 +299,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(getIntent());
     }
 
-    public void ChangeScheduler(String scheduler){
-        String[] newScheduler = {"echo "+scheduler+" > /sys/block/sda/queue/scheduler"};
+    private String getScheduler(String s) {
+        String[] cmd = {"cat /sys/block/"+s+"/queue/scheduler\n"};
+        return RunCommand(cmd);
+    }
+
+    public void ChangeScheduler(String scheduler, String s){
+        String[] newScheduler = {"echo "+scheduler+" > /sys/block/"+s+"/queue/scheduler"};
         RunCommand(newScheduler);
         finish();
         startActivity(getIntent());
@@ -270,8 +335,7 @@ public class MainActivity extends AppCompatActivity {
             os.flush();
             os.close();
             //////////////////////////////////////////////////////////////////////////
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             int read;
             char[] buffer = new char[4096];
@@ -293,9 +357,4 @@ public class MainActivity extends AppCompatActivity {
         return "";
     }
 
-
-    private String getScheduler() {
-        String[] cmd = {"cat /sys/block/sda/queue/scheduler\n"};
-       return RunCommand(cmd);
-    }
 }
