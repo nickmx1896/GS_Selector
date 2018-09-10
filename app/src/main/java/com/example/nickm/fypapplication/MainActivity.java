@@ -9,9 +9,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -36,6 +39,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String little = "LITTLE Governor: " + getGovernor("little");
         String big = "big Governor: " + getGovernor("big");
+
+//        Spinner spinner = findViewById(R.id.spinner);
+//        ArrayAdapter<CharSequence> adapter =ArrayAdapter.createFromResource(this, R.array.governors, android.R.layout.simple_spinner_item);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner.setAdapter(adapter);
+//        spinner.setOnItemSelectedListener(this);
 
         TextView textView1 = findViewById(R.id.textView1);  //  big governor
         textView1.setText(big);
@@ -97,7 +106,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Button processInfo = findViewById(R.id.button18);
         processInfo.setOnClickListener(this);
-
+        Button threadInfo = findViewById(R.id.button19);
+        threadInfo.setOnClickListener(this);
 
 
     }
@@ -172,8 +182,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.button18:
                 View p = new View(this);
-                showAlert(p);
+                Boolean showThread = false;
+                showAlert(p, showThread);
                 break;
+
+            case R.id.button19:
+                View p2 = new View(this);
+                Boolean showThread2 = true;
+                showAlert(p2, showThread2);
+                break;
+
             default:
                 finish();
                 startActivity(getIntent());
@@ -193,16 +211,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0"))
 //                .addLine(getNice())
                 );
-        //builder.addAction(R.mipmap.ic_launcher, "refresh",update);
         NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NM.notify(0, builder.build());
 
+
     }
 
-    public void showAlert (View w){
+    public void showAlert (View w, Boolean T){
         AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
-        a_builder.setTitle("All running processes");
-        a_builder.setMessage(getNice());
+        if (T){
+            a_builder.setTitle("All running threads");
+        }
+        else{
+            a_builder.setTitle("All running processes");
+        }
+
+        a_builder.setMessage(getNice(T));
         AlertDialog alert = a_builder.create();
         alert.show();
     }
@@ -272,9 +296,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(getIntent());
     }
 
-    public String getNice (){
-        String[] nice = {"busybox ps -o pid,nice,comm"};
-        return RunCommand(nice);
+    public String getNice (Boolean T){
+        if (T){
+            String[] nice = {"busybox ps -T -o pid,nice,comm"};
+            return RunCommand(nice);
+        }
+        else {
+            String[] nice = {"busybox ps -o pid,nice,comm"};
+            return RunCommand(nice);
+        }
     }
     String RunCommand(String[] cmd) {
 
@@ -321,5 +351,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return "";
     }
-
+//
+//    @Override
+//    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//        String text = parent.getItemAtPosition(position).toString();
+//        ChangeGovernorBig(text);
+////        Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
+//    }
+//
+//    @Override
+//    public void onNothingSelected(AdapterView<?> parent) {
+//
+//    }
 }

@@ -17,6 +17,12 @@
         <!--android:text="TextView"-->
         <!--android:textSize="18sp" />-->
 
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Auto Governor/Scheduler" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -24,7 +30,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <Button
                 android:id="@+id/button1"
@@ -202,6 +208,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="process info" />
+
+                <Button
+                    android:id="@+id/button19"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="thread info" />
 
             </LinearLayout>
         </LinearLayout>

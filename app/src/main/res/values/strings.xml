@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">FYP Application</string>
+    
+    <string-array name="governors">
+        <item>smartmax</item>
+        <item>smartassV2</item>
+        <item>userspace</item>
+        <item>interactive</item>
+        <item>performance</item>
+    </string-array>
 </resources>
