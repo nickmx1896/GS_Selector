@@ -1,5 +1,6 @@
 package com.example.nickm.fypapplication;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -43,10 +44,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textView2.setText(little);
 
         TextView textView3 = findViewById(R.id.textView3);  //  int scheduler
-        textView3.setText(getScheduler("sda"));
+        textView3.setText("Internal Scheduler: "+getScheduler("sda"));
 
         TextView textView4 = findViewById(R.id.textView4);  //  ext scheduler
-        textView4.setText(getScheduler("mmcblk0"));
+        textView4.setText("External Scheduler: "+getScheduler("mmcblk0"));
+
+//        TextView textView = findViewById(R.id.textView);
+//        textView.setText(getNice());
 
         // show notification on startup
         showNotification(notification);
@@ -91,11 +95,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button zen2 = findViewById(R.id.button17);
         zen2.setOnClickListener(this);
 
+        Button processInfo = findViewById(R.id.button18);
+        processInfo.setOnClickListener(this);
+
+
+
     }
     @Override
     public void onClick(View v) {
         // default method for handling onClick Events..
-        //  doesn't include show notification button
+        //  doesn't include show notification button --> done by OnClick of the button
         switch (v.getId()) {
 
             case R.id.button2:
@@ -160,6 +169,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button17:
                 ChangeScheduler("zen", "mmcblk0");
                 break;
+
+            case R.id.button18:
+                View p = new View(this);
+                showAlert(p);
+                break;
             default:
                 finish();
                 startActivity(getIntent());
@@ -176,14 +190,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addLine("big Governor:   " + getGovernor("big"))
                 .addLine("LITTLE Governor:   " + getGovernor("little"))
                 .addLine("Int IO Scheduler:    " + getScheduler("sda"))
-                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0")));
+                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0"))
+//                .addLine(getNice())
+                );
         //builder.addAction(R.mipmap.ic_launcher, "refresh",update);
         NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NM.notify(0, builder.build());
 
     }
 
-
+    public void showAlert (View w){
+        AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
+        a_builder.setTitle("All running processes");
+        a_builder.setMessage(getNice());
+        AlertDialog alert = a_builder.create();
+        alert.show();
+    }
 //    public void refresh(View v) {
 //        finish();
 //        startActivity(getIntent());
@@ -250,6 +272,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(getIntent());
     }
 
+    public String getNice (){
+        String[] nice = {"busybox ps -o pid,nice,comm"};
+        return RunCommand(nice);
+    }
     String RunCommand(String[] cmd) {
 
         //  run any terminal command through this function, that doesn't return anything
