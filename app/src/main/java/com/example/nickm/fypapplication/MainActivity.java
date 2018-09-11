@@ -114,6 +114,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         threadInfo.setOnClickListener(this);
 
 
+        //  start GS_Service
+        Intent i = new Intent(this, GS_Service.class);
+        startService(i);
     }
     @Override
     public void onClick(View v) {
