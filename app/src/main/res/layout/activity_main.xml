@@ -18,7 +18,7 @@
         <!--android:textSize="18sp" />-->
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/GS_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Auto Governor/Scheduler" />
@@ -33,14 +33,14 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/notificationButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="showNotification"
                 android:text="Show in Notification" />
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/bigGovernor"
                 android:layout_width="match_parent"
                 android:layout_height="37dp"
                 android:layout_marginBottom="8dp"
@@ -51,25 +51,31 @@
                 android:textSize="18sp" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/bigInteractive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="big interactive" />
+
+            <Button
+                android:id="@+id/bigPerformance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="big Performance" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/bigSmartass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="big Smartass" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/bigSmartmax"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="big smartmax" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/littleGovernor"
                 android:layout_width="match_parent"
                 android:layout_height="37dp"
                 android:layout_marginEnd="8dp"
@@ -79,124 +85,130 @@
                 android:textSize="18sp" />
 
             <Button
-                android:id="@+id/button5"
+                android:id="@+id/littleInteractive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="little interactive" />
+
+            <Button
+                android:id="@+id/littlePerformance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="LITTLE Performance" />
 
             <Button
-                android:id="@+id/button6"
+                android:id="@+id/littleSmartass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="LITTLE SmartAss" />
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/littleSmartmax"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="LITTLE smartmax" />
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="match_parent"
-                android:layout_height="37dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="int sched"
-                android:textSize="18sp" />
+            <!--<TextView-->
+                <!--android:id="@+id/textView3"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="37dp"-->
+                <!--android:layout_marginEnd="8dp"-->
+                <!--android:layout_marginStart="8dp"-->
+                <!--android:layout_marginTop="8dp"-->
+                <!--android:text="int sched"-->
+                <!--android:textSize="18sp" />-->
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="horizontal">-->
 
-                <Button
-                    android:id="@+id/button8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="noop" />
+                <!--<Button-->
+                    <!--android:id="@+id/button8"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="noop" />-->
 
-                <Button
-                    android:id="@+id/button9"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="deadline" />
+                <!--<Button-->
+                    <!--android:id="@+id/button9"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="deadline" />-->
 
-                <Button
-                    android:id="@+id/button10"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="cfq" />
+                <!--<Button-->
+                    <!--android:id="@+id/button10"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="cfq" />-->
 
-                <Button
-                    android:id="@+id/button11"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="fiops" />
+                <!--<Button-->
+                    <!--android:id="@+id/button11"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="fiops" />-->
 
-                <Button
-                    android:id="@+id/button12"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="zen" />
-            </LinearLayout>
+                <!--<Button-->
+                    <!--android:id="@+id/button12"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="zen" />-->
+            <!--</LinearLayout>-->
 
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="match_parent"
-                android:layout_height="37dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="ext sched"
-                android:textSize="18sp" />
+            <!--<TextView-->
+                <!--android:id="@+id/textView4"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="37dp"-->
+                <!--android:layout_marginEnd="8dp"-->
+                <!--android:layout_marginStart="8dp"-->
+                <!--android:layout_marginTop="8dp"-->
+                <!--android:text="ext sched"-->
+                <!--android:textSize="18sp" />-->
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="horizontal">-->
 
-                <Button
-                    android:id="@+id/button13"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="noop" />
+                <!--<Button-->
+                    <!--android:id="@+id/button13"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="noop" />-->
 
-                <Button
-                    android:id="@+id/button14"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="deadline" />
+                <!--<Button-->
+                    <!--android:id="@+id/button14"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="deadline" />-->
 
-                <Button
-                    android:id="@+id/button15"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="cfq" />
+                <!--<Button-->
+                    <!--android:id="@+id/button15"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="cfq" />-->
 
-                <Button
-                    android:id="@+id/button16"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="fiops" />
+                <!--<Button-->
+                    <!--android:id="@+id/button16"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="fiops" />-->
 
-                <Button
-                    android:id="@+id/button17"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="zen" />
-            </LinearLayout>
+                <!--<Button-->
+                    <!--android:id="@+id/button17"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="zen" />-->
+            <!--</LinearLayout>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -204,13 +216,13 @@
                 android:orientation="vertical">
 
                 <Button
-                    android:id="@+id/button18"
+                    android:id="@+id/processInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="process info" />
 
                 <Button
-                    android:id="@+id/button19"
+                    android:id="@+id/threadInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="thread info" />

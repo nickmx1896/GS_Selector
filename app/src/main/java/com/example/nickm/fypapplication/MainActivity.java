@@ -46,41 +46,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        spinner.setAdapter(adapter);
 //        spinner.setOnItemSelectedListener(this);
 
-        TextView textView1 = findViewById(R.id.textView1);  //  big governor
+        //  text to show governor information
+        TextView textView1 = findViewById(R.id.bigGovernor);  //  big governor
         textView1.setText(big);
 
-        TextView textView2 = findViewById(R.id.textView2);  //  little governor
+        TextView textView2 = findViewById(R.id.littleGovernor);  //  little governor
         textView2.setText(little);
 
-        TextView textView3 = findViewById(R.id.textView3);  //  int scheduler
+        //  text to show IO scheduler information
+/*        TextView textView3 = findViewById(R.id.textView3);  //  int scheduler
         textView3.setText("Internal Scheduler: "+getScheduler("sda"));
 
         TextView textView4 = findViewById(R.id.textView4);  //  ext scheduler
-        textView4.setText("External Scheduler: "+getScheduler("mmcblk0"));
-
-//        TextView textView = findViewById(R.id.textView);
-//        textView.setText(getNice());
+        textView4.setText("External Scheduler: "+getScheduler("mmcblk0"));*/
 
         // show notification on startup
         showNotification(notification);
 
         // big governor buttons
-        Button bigP = findViewById(R.id.button2);
+        Button bigI = findViewById(R.id.bigInteractive);
+        bigI.setOnClickListener(this);
+        Button bigP = findViewById(R.id.bigPerformance);
         bigP.setOnClickListener(this);
-        Button bigSA = findViewById(R.id.button3);
+        Button bigSA = findViewById(R.id.bigSmartass);
         bigSA.setOnClickListener(this);
-        Button bigSM = findViewById(R.id.button4);
+        Button bigSM = findViewById(R.id.bigSmartmax);
         bigSM.setOnClickListener(this);
 
         // little governor buttons
-        Button litP = findViewById(R.id.button5);
+        Button litI = findViewById(R.id.littleInteractive);
+        litI.setOnClickListener(this);
+        Button litP = findViewById(R.id.littlePerformance);
         litP.setOnClickListener(this);
-        Button litSA = findViewById(R.id.button6);
+        Button litSA = findViewById(R.id.littleSmartass);
         litSA.setOnClickListener(this);
-        Button litSM = findViewById(R.id.button7);
+        Button litSM = findViewById(R.id.littleSmartmax);
         litSM.setOnClickListener(this);
 
-        // int scheduler buttons
+/*        // int scheduler buttons
         Button noop = findViewById(R.id.button8);
         noop.setOnClickListener(this);
         Button deadline = findViewById(R.id.button9);
@@ -102,11 +105,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button fiops2 = findViewById(R.id.button16);
         fiops2.setOnClickListener(this);
         Button zen2 = findViewById(R.id.button17);
-        zen2.setOnClickListener(this);
+        zen2.setOnClickListener(this);*/
 
-        Button processInfo = findViewById(R.id.button18);
+        //  check process/thread info
+        Button processInfo = findViewById(R.id.processInfo);
         processInfo.setOnClickListener(this);
-        Button threadInfo = findViewById(R.id.button19);
+        Button threadInfo = findViewById(R.id.threadInfo);
         threadInfo.setOnClickListener(this);
 
 
@@ -117,30 +121,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //  doesn't include show notification button --> done by OnClick of the button
         switch (v.getId()) {
 
-            case R.id.button2:
+            case R.id.bigInteractive:
+                ChangeGovernorBig("interactive");
+                break;
+
+            case R.id.bigPerformance:
                 ChangeGovernorBig("performance");
                 break;
 
-            case R.id.button3:
+            case R.id.bigSmartass:
                 ChangeGovernorBig("smartassV2");
                 break;
 
-            case R.id.button4:
+            case R.id.bigSmartmax:
                 ChangeGovernorBig("smartmax");
                 break;
 
-            case R.id.button5:
+            case R.id.littleInteractive:
+                ChangeGovernorLittle("interactive");
+                break;
+
+            case R.id.littlePerformance:
                 ChangeGovernorLittle("performance");
                 break;
 
-            case R.id.button6:
+            case R.id.littleSmartass:
                 ChangeGovernorLittle("smartassV2");
                 break;
 
-            case R.id.button7:
+            case R.id.littleSmartmax:
                 ChangeGovernorLittle("smartmax");
                 break;
-            case R.id.button8:
+           /* case R.id.button8:
                 ChangeScheduler("noop", "sda");
                 break;
 
@@ -178,15 +190,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.button17:
                 ChangeScheduler("zen", "mmcblk0");
-                break;
+                break;*/
 
-            case R.id.button18:
+            case R.id.processInfo:
                 View p = new View(this);
                 Boolean showThread = false;
                 showAlert(p, showThread);
                 break;
 
-            case R.id.button19:
+            case R.id.threadInfo:
                 View p2 = new View(this);
                 Boolean showThread2 = true;
                 showAlert(p2, showThread2);
@@ -207,8 +219,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builder.setStyle(new NotificationCompat.InboxStyle()    // allows the notification to become bigger
                 .addLine("big Governor:   " + getGovernor("big"))
                 .addLine("LITTLE Governor:   " + getGovernor("little"))
-                .addLine("Int IO Scheduler:    " + getScheduler("sda"))
-                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0"))
+//                .addLine("Int IO Scheduler:    " + getScheduler("sda"))
+//                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0"))
 //                .addLine(getNice())
                 );
         NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
