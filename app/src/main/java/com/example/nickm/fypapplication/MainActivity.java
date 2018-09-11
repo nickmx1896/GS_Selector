@@ -242,10 +242,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog alert = a_builder.create();
         alert.show();
     }
-//    public void refresh(View v) {
-//        finish();
-//        startActivity(getIntent());
-//    }
+    public void refresh() {
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        this.overridePendingTransition(0, 0);
+        startActivity(intent);
+        this.overridePendingTransition(0,0);
+    }
 
     private String getGovernor(String g) {
         StringBuffer sb = new StringBuffer();
@@ -282,8 +286,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 "echo " + governor + " > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
                 "echo " + governor + " > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
         RunCommand(newGovernor);
-        finish();
-        startActivity(getIntent());
+        refresh();
     }
 
     public void ChangeGovernorLittle(String governor) {
@@ -292,11 +295,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 "echo " + governor + " > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
                 "echo " + governor + " > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
         RunCommand(newGovernor);
-        finish();
-        startActivity(getIntent());
+        refresh();
     }
 
-    private String getScheduler(String s) {
+/*    private String getScheduler(String s) {
         String[] cmd = {"cat /sys/block/"+s+"/queue/scheduler\n"};
         return RunCommand(cmd);
     }
@@ -304,9 +306,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void ChangeScheduler(String scheduler, String s){
         String[] newScheduler = {"echo "+scheduler+" > /sys/block/"+s+"/queue/scheduler"};
         RunCommand(newScheduler);
-        finish();
-        startActivity(getIntent());
-    }
+        refresh();
+    }*/
 
     public String getNice (Boolean T){
         if (T){
