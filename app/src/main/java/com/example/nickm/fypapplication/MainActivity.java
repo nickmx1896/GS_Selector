@@ -3,16 +3,22 @@ package com.example.nickm.fypapplication;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +34,8 @@ import java.io.OutputStream;
 import static java.lang.System.in;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private static final String TAG = "com.example.nickm.fypapplication";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // show notification on startup
         showNotification(notification);
+
+        Button onService = findViewById(R.id.onService);
+        onService.setOnClickListener(this);
+        Button offService = findViewById(R.id.offService);
+        offService.setOnClickListener(this);
 
         // big governor buttons
         Button bigI = findViewById(R.id.bigInteractive);
@@ -114,15 +127,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         threadInfo.setOnClickListener(this);
 
 
-        //  start GS_Service
-        Intent i = new Intent(this, GS_Service.class);
-        startService(i);
     }
+
+
+    //*********************************************************************************************
+    //  this section is to implement a receiver that handles message sent by the service
+/*    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Register mMessageReceiver to receive messages.
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("my-event"));
+    }
+
+    // handler for received Intents for the "my-event" event
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Extract data included in the Intent
+            String message = intent.getStringExtra("message");
+            Log.i(TAG, "Got message: " + message);
+//            ChangeGovernorBig("performance");
+//            Log.i(TAG,"hello there");
+        }
+    };
+
+    @Override
+    protected void onPause() {
+        // Unregister since the activity is not visible
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onPause();
+    }*/
+    //  end of section
+    //*********************************************************************************************
     @Override
     public void onClick(View v) {
         // default method for handling onClick Events..
         //  doesn't include show notification button --> done by OnClick of the button
+        Intent serviceIntent = new Intent(this,GS_Service.class);
         switch (v.getId()) {
+            case R.id.onService:
+                startService(serviceIntent);
+                break;
+
+            case R.id.offService:
+                stopService(serviceIntent);
+                break;
 
             case R.id.bigInteractive:
                 ChangeGovernorBig("interactive");

@@ -17,12 +17,6 @@
         <!--android:text="TextView"-->
         <!--android:textSize="18sp" />-->
 
-    <Switch
-        android:id="@+id/GS_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Auto Governor/Scheduler" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -31,6 +25,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <Button
+                android:id="@+id/onService"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="On" />
+
+            <Button
+                android:id="@+id/offService"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="off" />
 
             <Button
                 android:id="@+id/notificationButton"
