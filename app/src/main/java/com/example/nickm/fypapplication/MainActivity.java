@@ -1,42 +1,34 @@
 package com.example.nickm.fypapplication;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import android.app.TaskStackBuilder;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-
-import static java.lang.System.in;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "com.example.nickm.fypapplication";
-
+    private static boolean onService = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,20 +37,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // view object for the notification
         View notification = new View(this);
 
-        String little = "LITTLE Governor: " + getGovernor("little");
-        String big = "big Governor: " + getGovernor("big");
 
-//        Spinner spinner = findViewById(R.id.spinner);
-//        ArrayAdapter<CharSequence> adapter =ArrayAdapter.createFromResource(this, R.array.governors, android.R.layout.simple_spinner_item);
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinner.setAdapter(adapter);
-//        spinner.setOnItemSelectedListener(this);
+
+
 
         //  text to show governor information
         TextView textView1 = findViewById(R.id.bigGovernor);  //  big governor
+        String big = "big Governor: " + getGovernor("big");
         textView1.setText(big);
 
         TextView textView2 = findViewById(R.id.littleGovernor);  //  little governor
+        String little = "LITTLE Governor: " + getGovernor("little");
         textView2.setText(little);
 
         //  text to show IO scheduler information
@@ -69,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textView4.setText("External Scheduler: "+getScheduler("mmcblk0"));*/
 
         // show notification on startup
-        showNotification(notification);
+        Button notificationButton = findViewById(R.id.notificationButton);
+        notificationButton.setOnClickListener(this);
+//        showNotification(notification);
 
         Button onService = findViewById(R.id.onService);
         onService.setOnClickListener(this);
@@ -121,10 +112,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         zen2.setOnClickListener(this);*/
 
         //  check process/thread info
-        Button processInfo = findViewById(R.id.processInfo);
-        processInfo.setOnClickListener(this);
-        Button threadInfo = findViewById(R.id.threadInfo);
-        threadInfo.setOnClickListener(this);
+        Button currentNice = findViewById(R.id.currentNice);
+        currentNice.setOnClickListener(this);
+        Button changeNice = findViewById(R.id.changeNice);
+        changeNice.setOnClickListener(this);
 
 
     }
@@ -167,8 +158,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //  doesn't include show notification button --> done by OnClick of the button
         Intent serviceIntent = new Intent(this,GS_Service.class);
         switch (v.getId()) {
+            case R.id.notificationButton:
+                createNotification();
+                break;
+
             case R.id.onService:
-                startService(serviceIntent);
+                //  check if service already started
+                if (onService==false){
+                    createNotification();
+                    startService(serviceIntent);
+                    onService = true;
+                }
+
+                else{
+                    View p = new View(this);
+                    showAlertServiceAlreadyOn(p);
+                }
                 break;
 
             case R.id.offService:
@@ -246,16 +251,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ChangeScheduler("zen", "mmcblk0");
                 break;*/
 
-            case R.id.processInfo:
+            case R.id.currentNice:
                 View p = new View(this);
-                Boolean showThread = false;
-                showAlert(p, showThread);
+                showAlertCurrentNice(p);
                 break;
 
-            case R.id.threadInfo:
-                View p2 = new View(this);
-                Boolean showThread2 = true;
-                showAlert(p2, showThread2);
+            case R.id.changeNice:
+                ChangeNice(getPID(),-20);
+//                View p2 = new View(this);
+//                showAlert(p2);
                 break;
 
             default:
@@ -264,38 +268,79 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-    public void showNotification(View v) {
-        //PendingIntent update = PendingIntent.getActivity(this,0,update,PendingIntent.FLAG_ONE_SHOT);
+
+    public void createNotification(){
+
+        Intent intent = new Intent(this, MainActivity.class);
+
+        TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(this);
+        taskStackBuilder.addParentStack(MainActivity.class);
+        taskStackBuilder.addNextIntent(intent);
+
+        PendingIntent pendingIntent = taskStackBuilder.
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText("Sample Notification")
+                .setAutoCancel(true)
+                .setPriority(Notification.PRIORITY_MAX)
+//                .setDefaults(Notification.DEFAULT_VIBRATE)
+                .setContentIntent(pendingIntent)
+                .setStyle(new Notification.InboxStyle()
+
+                        //  addLine each line is an info displayed inside the Inbox Style text box
+                        .addLine("big Governor:   " + getGovernor("big"))
+                        .addLine("LITTLE Governor:   " + getGovernor("little"))
+                        .addLine("Current App: "+printForegroundTask()))
+//                        .addLine(getNice(getPID())))
+                .build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notification);
+
+    }
+
+    public void showNotification(View v) {  //  need call this method to show notification when required
+
         // helps sets certain parameters of the notification, like icons etc
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher)
+                //  title of the notification
                 .setContentTitle("CPU Details");
-        builder.setStyle(new NotificationCompat.InboxStyle()    // allows the notification to become bigger
+
+        //  set the contents of the notification
+        //  Inbox style --> allows notification to look bigger
+        builder.setStyle(new NotificationCompat.InboxStyle()
+
+                //  addLine each line is an info displayed inside the Inbox Style text box
                 .addLine("big Governor:   " + getGovernor("big"))
                 .addLine("LITTLE Governor:   " + getGovernor("little"))
-//                .addLine("Int IO Scheduler:    " + getScheduler("sda"))
-//                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0"))
-//                .addLine(getNice())
-                );
+                .addLine("Current App: "+printForegroundTask())
+                .addLine("PID is: "+getPID())
+        );
+
+        //  start the notification
         NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NM.notify(0, builder.build());
-
-
     }
 
-    public void showAlert (View w, Boolean T){
+    public void showAlertCurrentNice (View w){
         AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
-        if (T){
-            a_builder.setTitle("All running threads");
-        }
-        else{
-            a_builder.setTitle("All running processes");
-        }
-
-        a_builder.setMessage(getNice(T));
+        a_builder.setTitle("Foreground App Nice Value");
+        a_builder.setMessage(getNice(getPID(),true));
         AlertDialog alert = a_builder.create();
         alert.show();
     }
+
+    public void showAlertServiceAlreadyOn (View w){
+        AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
+        a_builder.setTitle("Alert");
+        a_builder.setMessage("Service already running!");
+        AlertDialog alert = a_builder.create();
+        alert.show();
+    }
+
     public void refresh() {
         Intent intent = getIntent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -306,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String getGovernor(String g) {
-        StringBuffer sb = new StringBuffer();
+//        StringBuffer sb = new StringBuffer();
         String gov;
         if (g == "big") {
             gov = "4";
@@ -314,9 +359,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else {
             gov = "0";
         }
-        String file = "/sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor";  // Gets governor for big cores
+        String[] file = {"cat /sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor"};  // Gets governor for big cores
+        return RunCommand(file);
 
-        if (new File(file).exists()) {
+        //  below required to read the file output after querying the above
+/*        if (new File(file).exists()) {
             try {
                 BufferedReader br = new BufferedReader(new FileReader(new File(file)));
                 String aLine;
@@ -330,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        return sb.toString();
+        return sb.toString();*/
     }
 
 
@@ -363,18 +410,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         refresh();
     }*/
 
-    public String getNice (Boolean T){
-        if (T){
-            String[] nice = {"busybox ps -T -o pid,nice,comm"};
+    public String getNice (String PID, Boolean otherInfo){
+
+        //  if want to show other information like name, pid, priority
+        if (otherInfo==true){
+            String[] nice = {"toybox ps -o PID,NI,NAME,PRI " + "-p " + PID};
             return RunCommand(nice);
         }
-        else {
-            String[] nice = {"busybox ps -o pid,nice,comm"};
+        //  else just show the nice value
+        else{
+            String[] nice = {"toybox ps -o NI " + "-p " + PID};
             return RunCommand(nice);
         }
     }
-    String RunCommand(String[] cmd) {
 
+    public void ChangeNice(String pid, int newNice){
+
+        //  command to change nice value of pid by incrementing
+        int increment = 0;
+        increment = newNice - Integer.parseInt(getNice(getPID(),false));
+        String inc = Integer.toString(increment);   //  doesn't work due to NI being printed too
+        String cmd[] = {"toybox renice -p -n "+inc+" "+pid};
+        RunCommand(cmd);
+    }
+
+    private String printForegroundTask() {
+        String currentApp = "NULL";
+
+        //  check the SDK version of android
+        //  different version requires different way of implementation
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            UsageStatsManager usm = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
+            long time = System.currentTimeMillis();
+            List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,  time - 1000*1000, time);
+            if (appList != null && appList.size() > 0) {
+                SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
+                for (UsageStats usageStats : appList) {
+                    mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                }
+                if (mySortedMap != null && !mySortedMap.isEmpty()) {
+                    currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
+                }
+            }
+        } else {    //  older method for older Android versions
+            ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
+            currentApp = tasks.get(0).processName;
+        }
+        return currentApp;
+    }
+
+    public String getPID(){
+        String cmd[] = {"pidof "+printForegroundTask()};
+        return RunCommand(cmd);
+    }
+
+
+    String RunCommand(String[] cmd) {
         //  run any terminal command through this function, that doesn't return anything
         Process process;
         try {
@@ -418,16 +510,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return "";
     }
-//
-//    @Override
-//    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//        String text = parent.getItemAtPosition(position).toString();
-//        ChangeGovernorBig(text);
-////        Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
-//    }
-//
-//    @Override
-//    public void onNothingSelected(AdapterView<?> parent) {
-//
-//    }
+
 }

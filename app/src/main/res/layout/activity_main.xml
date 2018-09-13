@@ -42,7 +42,6 @@
                 android:id="@+id/notificationButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="showNotification"
                 android:text="Show in Notification" />
 
             <TextView
@@ -221,17 +220,24 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/processInfo"
+                <TextView
+                    android:id="@+id/textView3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="process info" />
+                    android:layout_height="37dp"
+                    android:text="Current Processes/Threads"
+                    android:textSize="18sp" />
 
                 <Button
-                    android:id="@+id/threadInfo"
+                    android:id="@+id/currentNice"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="thread info" />
+                    android:text="Current Nice" />
+
+                <Button
+                    android:id="@+id/changeNice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Change Nice" />
 
             </LinearLayout>
         </LinearLayout>

@@ -2,13 +2,14 @@ package com.example.nickm.fypapplication;
 
 import android.app.ActivityManager;
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -17,8 +18,6 @@ import android.view.View;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -42,37 +41,20 @@ public class GS_Service extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         int i = 0;
+        View notification = new View(this);
+        String prevTask = printForegroundTask();
         while (true) {
             long futureTime = System.currentTimeMillis() + 1000;
             while (System.currentTimeMillis() < futureTime) {
                 synchronized (this) {
-/*                    ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-
-                    ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
-
-
-                    //  to get the current foreground app
-                    String foregroundTaskPackageName = foregroundTaskInfo.topActivity.getPackageName();
-                    PackageManager pm = this.getPackageManager();*/
                     try {
                         wait(futureTime - System.currentTimeMillis());
-/*                        PackageInfo foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
-                        String foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();*/
                         i += 1;
-                        Log.i(TAG, i + "Intent Service started: "+printForegroundTask());
-                        if (printForegroundTask().contains("Battleheart")){
-                            View notif = new View(this);
-                            Log.i(TAG,"battleheart running");
-                            ChangeGovernors("interactive");
-                            showNotification(notif);
-                        }
-                        else{
-                            Log.i(TAG,"not running");
-                            ChangeGovernors("smartmax");
-                        }
-//                        fore();
-
-//                                sendMessage();
+                        Log.i(TAG, i + "Intent Service started: " + printForegroundTask()+ " is running. PID: "+ getPID());
+//                        if (printForegroundTask()==prevTask){
+//                            createNotification();
+//                        }
+//                        createNotification();
                     } catch (Exception e) {
                     }
                 }
@@ -80,7 +62,8 @@ public class GS_Service extends IntentService {
         }
     }
 
-    //  this is for the normal Service
+    //  this is for the normal Service with running threads
+    //  to implement this, extend Service instead of IntentService
 /*    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG,"onStart called");
@@ -114,9 +97,12 @@ public class GS_Service extends IntentService {
         return Service.START_NOT_STICKY;
     }*/
 
-
+    //  method to retrieve current task running in foreground
     private String printForegroundTask() {
         String currentApp = "NULL";
+
+        //  check the SDK version of android
+        //  different version requires different way of implementation
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
             long time = System.currentTimeMillis();
@@ -130,24 +116,14 @@ public class GS_Service extends IntentService {
                     currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
                 }
             }
-        } else {
+        } else {    //  older method for older Android versions
             ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
             List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
             currentApp = tasks.get(0).processName;
         }
-
        return currentApp;
     }
 
-    private void fore(){
-        ActivityManager activityManager = (ActivityManager) this.getSystemService( Context.ACTIVITY_SERVICE );
-        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
-        for(ActivityManager.RunningAppProcessInfo appProcess : appProcesses){
-//            if(appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND){
-                Log.i(TAG, appProcess.processName);
-//            }
-        }
-    }
     // Send an Intent with an action named "my-event".
     //  this is to send a message to the broadcast receiver
     private void sendMessage() {
@@ -178,20 +154,96 @@ public class GS_Service extends IntentService {
                 "echo " + governor + " > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
         RunCommand(newGovernor);
     }
-    private String isAppOnForeground(Context context) {
-        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
-        if (appProcesses == null) {
-            return null;
+
+    private String getGovernor(String g) {
+        String gov;
+        if (g == "big") {
+            gov = "4";
+        }
+        else {
+            gov = "0";
         }
 
-        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                return appProcess.processName;
-            }
-        }
-        return null;
+        // cat command to retrieve current governor information
+        String[] file = {"cat /sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor"};
+        return RunCommand(file);
     }
+
+    public String getPID(){
+        String cmd[] = {"pidof "+printForegroundTask()};
+        return RunCommand(cmd);
+    }
+
+    public String getNice (String PID){
+        String[] nice = {"toybox ps -o PID,NI,NAME " + "-p " + PID};
+        return RunCommand(nice);
+
+    }
+
+    public void ChangeNice(String pid, String increment){
+
+        //  command to change nice value of pid by incrementing
+        String cmd[] = {"toybox renice -p -n "+increment+" "+pid};
+        RunCommand(cmd);
+    }
+
+
+    public void showNotification(View v) {  //  need call this method to show notification when required
+
+        // helps sets certain parameters of the notification, like icons etc
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_launcher)
+                //  title of the notification
+                .setContentTitle("CPU Details");
+
+        //  set the contents of the notification
+        //  Inbox style --> allows notification to look bigger
+        builder.setStyle(new NotificationCompat.InboxStyle()
+
+                //  addLine each line is an info displayed inside the Inbox Style text box
+                .addLine("big Governor:   " + getGovernor("big"))
+                .addLine("LITTLE Governor:   " + getGovernor("little"))
+                .addLine("Current App: "+printForegroundTask())
+                .addLine(getNice(getPID()))
+        );
+
+        //  start the notification
+        NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NM.notify(0, builder.build());
+    }
+
+    public void createNotification(){
+
+        Intent intent = new Intent(this, MainActivity.class);
+
+        TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(this);
+        taskStackBuilder.addParentStack(MainActivity.class);
+        taskStackBuilder.addNextIntent(intent);
+
+        PendingIntent pendingIntent = taskStackBuilder.
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText("Sample Notification")
+                .setAutoCancel(true)
+                .setPriority(Notification.PRIORITY_MAX)
+//                .setDefaults(Notification.De)
+                .setContentIntent(pendingIntent)
+                .setStyle(new Notification.InboxStyle()
+
+                        //  addLine each line is an info displayed inside the Inbox Style text box
+                        .addLine("big Governor:   " + getGovernor("big"))
+                        .addLine("LITTLE Governor:   " + getGovernor("little"))
+                        .addLine("Current App: "+printForegroundTask()))
+//                        .addLine(getNice(getPID())))
+                .build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notification);
+
+    }
+
     String RunCommand(String[] cmd) {
 
         //  run any terminal command through this function, that doesn't return anything
@@ -236,52 +288,5 @@ public class GS_Service extends IntentService {
             e.printStackTrace();
         }
         return "";
-    }
-
-    private String getGovernor(String g) {
-        StringBuffer sb = new StringBuffer();
-        String gov;
-        if (g == "big") {
-            gov = "4";
-        }
-        else {
-            gov = "0";
-        }
-        String file = "/sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor";  // Gets governor for big cores
-
-        if (new File(file).exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(new File(file)));
-                String aLine;
-                while ((aLine = br.readLine()) != null)
-                    sb.append(aLine + "\n");
-
-                if (br != null)
-                    br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return sb.toString();
-    }
-
-    public void showNotification(View v) {
-        //PendingIntent update = PendingIntent.getActivity(this,0,update,PendingIntent.FLAG_ONE_SHOT);
-        // helps sets certain parameters of the notification, like icons etc
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("CPU Details");
-        builder.setStyle(new NotificationCompat.InboxStyle()    // allows the notification to become bigger
-                        .addLine("big Governor:   " + getGovernor("big"))
-                        .addLine("LITTLE Governor:   " + getGovernor("little"))
-//                .addLine("Int IO Scheduler:    " + getScheduler("sda"))
-//                .addLine("Ext IO Scheduler:    " + getScheduler("mmcblk0"))
-//                .addLine(getNice())
-        );
-        NotificationManager NM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NM.notify(0, builder.build());
-
-
     }
 }
