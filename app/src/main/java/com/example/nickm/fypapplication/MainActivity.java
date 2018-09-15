@@ -257,7 +257,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.changeNice:
-                ChangeNice(getPID(),-20);
+                //  change the niceness of current foreground to -20
+                ChangeNice(getPID(),-15);
 //                View p2 = new View(this);
 //                showAlert(p2);
                 break;
@@ -286,15 +287,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setContentText("Sample Notification")
                 .setAutoCancel(true)
                 .setPriority(Notification.PRIORITY_MAX)
-//                .setDefaults(Notification.DEFAULT_VIBRATE)
                 .setContentIntent(pendingIntent)
                 .setStyle(new Notification.InboxStyle()
 
                         //  addLine each line is an info displayed inside the Inbox Style text box
-                        .addLine("big Governor:   " + getGovernor("big"))
-                        .addLine("LITTLE Governor:   " + getGovernor("little"))
-                        .addLine("Current App: "+printForegroundTask()))
-//                        .addLine(getNice(getPID())))
+//                        .addLine("big Governor:   " + getGovernor("big"))
+//                        .addLine("LITTLE Governor:   " + getGovernor("little"))
+                        .addLine("Current App: "+printForegroundTask())
+                        .addLine(getNice(getPID(),true)))
                 .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void showAlertCurrentNice (View w){
         AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
         a_builder.setTitle("Foreground App Nice Value");
-        a_builder.setMessage(getNice(getPID(),true));
+        a_builder.setMessage("Nice value: "+getNice(getPID(),true)+"PID is "+getPID());
         AlertDialog alert = a_builder.create();
         alert.show();
     }
@@ -410,17 +410,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         refresh();
     }*/
 
-    public String getNice (String PID, Boolean otherInfo){
-
+    public String getNice (String PID, Boolean onlyNice){
+        String niceValue = "";
         //  if want to show other information like name, pid, priority
-        if (otherInfo==true){
+        if (onlyNice==false){
             String[] nice = {"toybox ps -o PID,NI,NAME,PRI " + "-p " + PID};
-            return RunCommand(nice);
+            niceValue =  RunCommand(nice);
+            return niceValue;
         }
         //  else just show the nice value
         else{
             String[] nice = {"toybox ps -o NI " + "-p " + PID};
-            return RunCommand(nice);
+            niceValue =  RunCommand(nice);
+            String output[] = niceValue.split("\\n");
+            return output[1];
         }
     }
 
@@ -428,9 +431,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //  command to change nice value of pid by incrementing
         int increment = 0;
-        increment = newNice - Integer.parseInt(getNice(getPID(),false));
-        String inc = Integer.toString(increment);   //  doesn't work due to NI being printed too
-        String cmd[] = {"toybox renice -p -n "+inc+" "+pid};
+
+        //  need to calculate increment by getting current nice value
+        increment = newNice - Integer.parseInt(getNice(getPID(),true));
+
+        //  convert the integer to string
+        String inc = Integer.toString(increment);
+
+//        String cmd[] = {"toybox renice -p -n "+inc+" "+pid};
+        String cmd[] = {"renice -n "+inc+" "+pid};
         RunCommand(cmd);
     }
 

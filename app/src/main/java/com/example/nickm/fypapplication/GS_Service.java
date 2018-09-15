@@ -10,6 +10,7 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -40,20 +41,14 @@ public class GS_Service extends IntentService {
     //  handles intent, need to extend IntentService instead
     @Override
     protected void onHandleIntent(Intent intent) {
-        int i = 0;
-        View notification = new View(this);
-        String prevTask = printForegroundTask();
         while (true) {
             long futureTime = System.currentTimeMillis() + 1000;
             while (System.currentTimeMillis() < futureTime) {
                 synchronized (this) {
                     try {
                         wait(futureTime - System.currentTimeMillis());
-                        i += 1;
-                        Log.i(TAG, i + "Intent Service started: " + printForegroundTask()+ " is running. PID: "+ getPID());
-//                        if (printForegroundTask()==prevTask){
-//                            createNotification();
-//                        }
+                        Log.i(TAG, printForegroundTask()+ " is running. PID: "+ getPID()+"\n " +
+                                "nice value: "+getNice(getPID(),true));
 //                        createNotification();
                     } catch (Exception e) {
                     }
@@ -174,19 +169,38 @@ public class GS_Service extends IntentService {
         return RunCommand(cmd);
     }
 
-    public String getNice (String PID){
-        String[] nice = {"toybox ps -o PID,NI,NAME " + "-p " + PID};
-        return RunCommand(nice);
-
+    public String getNice (String PID, Boolean onlyNice){
+        String niceValue = "";
+        //  if want to show other information like name, pid, priority
+        if (onlyNice==false){
+            String[] nice = {"toybox ps -o PID,NI,NAME,PRI " + "-p " + PID};
+             niceValue =  RunCommand(nice);
+             return niceValue;
+        }
+        //  else just show the nice value
+        else{
+            String[] nice = {"toybox ps -o NI " + "-p " + PID};
+            niceValue =  RunCommand(nice);
+            String output[] = niceValue.split("\\n");
+            return output[1];
+        }
     }
 
-    public void ChangeNice(String pid, String increment){
+    public void ChangeNice(String pid, int newNice){
 
         //  command to change nice value of pid by incrementing
-        String cmd[] = {"toybox renice -p -n "+increment+" "+pid};
+        int increment = 0;
+
+        //  need to calculate increment by getting current nice value
+        increment = newNice - Integer.parseInt(getNice(getPID(),true));
+
+        //  convert the integer to string
+        String inc = Integer.toString(increment);
+
+//        String cmd[] = {"toybox renice -p -n "+inc+" "+pid};
+        String cmd[] = {"renice -n "+inc+" "+pid};
         RunCommand(cmd);
     }
-
 
     public void showNotification(View v) {  //  need call this method to show notification when required
 
@@ -204,7 +218,7 @@ public class GS_Service extends IntentService {
                 .addLine("big Governor:   " + getGovernor("big"))
                 .addLine("LITTLE Governor:   " + getGovernor("little"))
                 .addLine("Current App: "+printForegroundTask())
-                .addLine(getNice(getPID()))
+                .addLine(getNice(getPID(),false))
         );
 
         //  start the notification
@@ -229,15 +243,14 @@ public class GS_Service extends IntentService {
                 .setContentText("Sample Notification")
                 .setAutoCancel(true)
                 .setPriority(Notification.PRIORITY_MAX)
-//                .setDefaults(Notification.De)
                 .setContentIntent(pendingIntent)
                 .setStyle(new Notification.InboxStyle()
 
                         //  addLine each line is an info displayed inside the Inbox Style text box
-                        .addLine("big Governor:   " + getGovernor("big"))
-                        .addLine("LITTLE Governor:   " + getGovernor("little"))
-                        .addLine("Current App: "+printForegroundTask()))
-//                        .addLine(getNice(getPID())))
+//                        .addLine("big Governor:   " + getGovernor("big"))
+//                        .addLine("LITTLE Governor:   " + getGovernor("little"))
+                        .addLine("Current App: "+printForegroundTask())
+                        .addLine(getNice(getPID(),false)))
                 .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
