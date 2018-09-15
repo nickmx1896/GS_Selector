@@ -47,8 +47,19 @@ public class GS_Service extends IntentService {
                 synchronized (this) {
                     try {
                         wait(futureTime - System.currentTimeMillis());
-                        Log.i(TAG, printForegroundTask()+ " is running. PID: "+ getPID()+"\n " +
-                                "nice value: "+getNice(getPID(),true));
+                        Log.i(TAG, printForegroundTask()+ " is running. PID: "+ getPID()+" nice value: "+getNice(getPID(),true)+
+                                " Governor:   " + getGovernor("big"));
+//                        createNotification();
+                        if (    (printForegroundTask().equals("com.ea.games.r3_row")) || (printForegroundTask().equals("com.MikaMobile.Battleheart"))
+                                || (printForegroundTask().equals("com.google.android.youtube")) ) {
+                            Log.i(TAG,"ya");
+                            ChangeGovernors("smartassV2");
+                            ChangeNice(getPID(),-20);
+                        }
+                        else{
+                            Log.i(TAG,"no leh");
+                            ChangeGovernors("smartassV2");
+                        }
 //                        createNotification();
                     } catch (Exception e) {
                     }
@@ -56,6 +67,8 @@ public class GS_Service extends IntentService {
             }
         }
     }
+
+
 
     //  this is for the normal Service with running threads
     //  to implement this, extend Service instead of IntentService
@@ -173,7 +186,7 @@ public class GS_Service extends IntentService {
         String niceValue = "";
         //  if want to show other information like name, pid, priority
         if (onlyNice==false){
-            String[] nice = {"toybox ps -o PID,NI,NAME,PRI " + "-p " + PID};
+            String[] nice = {"toybox ps -o PID,NI,NAME,PRI,GROUP " + "-p " + PID};
              niceValue =  RunCommand(nice);
              return niceValue;
         }
@@ -247,8 +260,8 @@ public class GS_Service extends IntentService {
                 .setStyle(new Notification.InboxStyle()
 
                         //  addLine each line is an info displayed inside the Inbox Style text box
-//                        .addLine("big Governor:   " + getGovernor("big"))
-//                        .addLine("LITTLE Governor:   " + getGovernor("little"))
+                        .addLine("big Governor:   " + getGovernor("big"))
+                        .addLine("LITTLE Governor:   " + getGovernor("little"))
                         .addLine("Current App: "+printForegroundTask())
                         .addLine(getNice(getPID(),false)))
                 .build();

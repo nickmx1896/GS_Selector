@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -160,12 +162,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.notificationButton:
                 createNotification();
+//                executePeriodicTask();
                 break;
 
             case R.id.onService:
                 //  check if service already started
                 if (onService==false){
-                    createNotification();
+//                    createNotification();
                     startService(serviceIntent);
                     onService = true;
                 }
@@ -270,6 +273,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //  this method allows us to run periodic tasks
+    public void executePeriodicTask() {
+        final android.os.Handler handler = new android.os.Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask;
+        doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+
+                            try {
+
+                                createNotification();
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+
+                            }
+
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 1000); //execute in every 50000 ms
+    }
+
+
     public void createNotification(){
 
         Intent intent = new Intent(this, MainActivity.class);
@@ -291,10 +327,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setStyle(new Notification.InboxStyle()
 
                         //  addLine each line is an info displayed inside the Inbox Style text box
-//                        .addLine("big Governor:   " + getGovernor("big"))
-//                        .addLine("LITTLE Governor:   " + getGovernor("little"))
+                        .addLine("big Governor:   " + getGovernor("big"))
+                        .addLine("LITTLE Governor:   " + getGovernor("little"))
                         .addLine("Current App: "+printForegroundTask())
-                        .addLine(getNice(getPID(),true)))
+                        .addLine(getNice(getPID(),false)))
                 .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
@@ -328,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void showAlertCurrentNice (View w){
         AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
         a_builder.setTitle("Foreground App Nice Value");
-        a_builder.setMessage("Nice value: "+getNice(getPID(),true)+"PID is "+getPID());
+        a_builder.setMessage(getNice(getPID(),false));
         AlertDialog alert = a_builder.create();
         alert.show();
     }
