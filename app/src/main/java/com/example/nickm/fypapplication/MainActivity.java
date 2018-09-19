@@ -10,11 +10,13 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import java.io.BufferedReader;
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "com.example.nickm.fypapplication";
     private static boolean onService = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -326,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setContentIntent(pendingIntent)
                 .setStyle(new Notification.InboxStyle()
 
+
                         //  addLine each line is an info displayed inside the Inbox Style text box
                         .addLine("big Governor:   " + getGovernor("big"))
                         .addLine("LITTLE Governor:   " + getGovernor("little"))
@@ -555,5 +560,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return "";
     }
+
 
 }
