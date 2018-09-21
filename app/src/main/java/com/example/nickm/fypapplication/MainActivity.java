@@ -83,6 +83,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button bigSM = findViewById(R.id.bigSmartmax);
         bigSM.setOnClickListener(this);
 
+        Button bigC = findViewById(R.id.bigConservative);
+        bigC.setOnClickListener(this);
+        Button bigO = findViewById(R.id.bigOndemand);
+        bigO.setOnClickListener(this);
+        Button bigU = findViewById(R.id.bigUserspace);
+        bigU.setOnClickListener(this);
+        Button bigPo = findViewById(R.id.bigPowersave);
+        bigPo.setOnClickListener(this);
+
         // little governor buttons
         Button litI = findViewById(R.id.littleInteractive);
         litI.setOnClickListener(this);
@@ -93,6 +102,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button litSM = findViewById(R.id.littleSmartmax);
         litSM.setOnClickListener(this);
 
+        Button litC = findViewById(R.id.littleConservative);
+        litC.setOnClickListener(this);
+        Button litO = findViewById(R.id.littleOndemand);
+        litO.setOnClickListener(this);
+        Button litU = findViewById(R.id.littleUserspace);
+        litU.setOnClickListener(this);
+        Button litPo = findViewById(R.id.littlePowersave);
+        litPo.setOnClickListener(this);
 /*        // int scheduler buttons
         Button noop = findViewById(R.id.button8);
         noop.setOnClickListener(this);
@@ -187,6 +204,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 stopService(serviceIntent);
                 break;
 
+            //################################################################################
+            //  big Governor Buttons
+            //################################################################################
+
             case R.id.bigInteractive:
                 ChangeGovernorBig("interactive");
                 break;
@@ -203,6 +224,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ChangeGovernorBig("smartmax");
                 break;
 
+            case R.id.bigConservative:
+                ChangeGovernorBig("conservative");
+                break;
+
+            case R.id.bigOndemand:
+                ChangeGovernorBig("ondemand");
+                break;
+
+            case R.id.bigUserspace:
+                ChangeGovernorBig("userspace");
+                break;
+
+            case R.id.bigPowersave:
+                ChangeGovernorBig("powersave");
+                break;
+
+            //################################################################################
+            //  little Governor Buttons
+            //################################################################################
+
             case R.id.littleInteractive:
                 ChangeGovernorLittle("interactive");
                 break;
@@ -218,6 +259,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.littleSmartmax:
                 ChangeGovernorLittle("smartmax");
                 break;
+
+            case R.id.littleConservative:
+                ChangeGovernorLittle("conservative");
+                break;
+
+            case R.id.littleOndemand:
+                ChangeGovernorLittle("ondemand");
+                break;
+
+            case R.id.littleUserspace:
+                ChangeGovernorLittle("userspace");
+                break;
+
+            case R.id.littlePowersave:
+                ChangeGovernorLittle("powersave");
+                break;
+            //################################################################################
+            //  I/O Scheduler Buttons
+            //################################################################################
+
+
            /* case R.id.button8:
                 ChangeScheduler("noop", "sda");
                 break;

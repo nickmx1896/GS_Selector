@@ -71,14 +71,20 @@ public class GS_Service extends IntentService {
                 synchronized (this) {
                     try {
                         String currentPID = getPID();
+//                        int test = Integer.parseInt(getPID());
                         String currentFreqLittle = getFreq("little");
                         String currentFreqBig = getFreq("big");
                         wait(futureTime - System.currentTimeMillis());
 
-                        Log.i(TAG, Integer.toString(cnt)+" "+getNice(currentPID,true)+" "+printForegroundTask()+"\n"
-                            +getFreq("little")+" "+getFreq("big"));
-                        if(printForegroundTask().equals("com.facebook.katana")){
-/*                            if (Integer.parseInt(getNice(currentPID, true)) >= -10) {
+/*                        Log.i(TAG, Integer.toString(cnt)+" "+getNice(currentPID,true)+" "+printForegroundTask()+"\n"
+                            +getFreq("little")+getFreq("big"));*/
+
+                        Log.i(TAG, Integer.toString(cnt)+" "+printForegroundTask()+" nice: "+getNice(currentPID,true)+"\n"+getCgroup(currentPID));
+//                        Log.i(TAG,getPID()+"hello");
+
+                        if(printForegroundTask().equals("com.MikaMobile.Battleheart")){
+//                            if (Integer.parseInt(getNice(currentPID, true)) >= -10) {
+/*                            if (!(getNice(currentPID, true).equals("-20"))) {
                                 ChangeNice(currentPID, -20);
                             }*/
                             littleList.add(currentFreqLittle);
@@ -392,26 +398,47 @@ public class GS_Service extends IntentService {
     }
 
     private String getFreq(String cpuType) {
-        int i;
 //        String[] file = new String[8];
         if (cpuType.equals("little")){
-//            for (i = 0; i < 4; i++){
                 String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq"};
-//            }
             return RunCommand(file);
         }
         else {
-//            for (i = 4; i < 8; i++){
             String[] file = {"cat /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq"};
-//            }
             return RunCommand(file);
         }
 
     }
 
+    //  print all the frequencies
+/*    private String getFreq(String cpuType) {
+        int i;
+        String[] file = new String[8];
+        if (cpuType.equals("little")){
+            for (i = 0; i < 4; i++){
+                file[i] = "cat /sys/devices/system/cpu/cpu"+Integer.toString(i)+"/cpufreq/cpuinfo_cur_freq";
+            }
+            return RunCommand(file);
+        }
+        else {
+            for (i = 4; i < 8; i++){
+                file[i] = "cat /sys/devices/system/cpu/cpu"+Integer.toString(i)+"/cpufreq/cpuinfo_cur_freq";
+            }
+            return RunCommand(file);
+        }
+
+    }*/
+
+    public String getCgroup(String PID){
+        String[] cmd = {"cat /proc/"+PID+"/cgroup"};
+        return RunCommand(cmd);
+    }
+
     public String getPID(){
         String cmd[] = {"pidof "+printForegroundTask()};
-        return RunCommand(cmd);
+        String pid = RunCommand(cmd);
+        String returnPID = pid.replace("\n", "").replace("\r", "");
+        return returnPID;
     }
 
     public String getNice (String PID, Boolean onlyNice){
