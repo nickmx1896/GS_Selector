@@ -65,38 +65,29 @@ public class GS_Service extends IntentService {
 
                 Apps:
                     com.facebook.katana
+                    com.futuremark.pcmark.android.benchmark
+                    com.instagram.android
 
             */
             while (System.currentTimeMillis() < futureTime) {
                 synchronized (this) {
                     try {
                         String currentPID = getPID();
-//                        int test = Integer.parseInt(getPID());
-                        String currentFreqLittle = getFreq("little");
-                        String currentFreqBig = getFreq("big");
                         wait(futureTime - System.currentTimeMillis());
-
-/*                        Log.i(TAG, Integer.toString(cnt)+" "+getNice(currentPID,true)+" "+printForegroundTask()+"\n"
-                            +getFreq("little")+getFreq("big"));*/
-
-                        Log.i(TAG, Integer.toString(cnt)+" "+printForegroundTask()+" nice: "+getNice(currentPID,true)+"\n"+getCgroup(currentPID));
-//                        Log.i(TAG,getPID()+"hello");
-
-                        if(printForegroundTask().equals("com.MikaMobile.Battleheart")){
-//                            if (Integer.parseInt(getNice(currentPID, true)) >= -10) {
-/*                            if (!(getNice(currentPID, true).equals("-20"))) {
-                                ChangeNice(currentPID, -20);
+                        Log.i(TAG, Integer.toString(cnt)+" "+printForegroundTask()+" nice: "+getNice(currentPID,true)
+                                );
+//                        if(printForegroundTask().equals("com.gameloft.android.ANMP.GloftNOHM")){
+/*                            if (!(getNice(currentPID, true).equals("-10"))) {
+                                ChangeNice(currentPID, -10);
                             }*/
-                            littleList.add(currentFreqLittle);
-                            bigList.add(currentFreqBig);
+                        if (true){
+                            littleList.add(getFreq("little"));
+                            bigList.add(getFreq("big"));
                             cnt=cnt+1;
                         }
                         if(cnt==60){
-                            Log.i(TAG,print(littleList)+"\n"+print(bigList));
+                            Log.i(TAG,"CPUFreq List\n"+"little\n"+print(littleList)+"\nbig\n"+print(bigList));
                         }
-
-                        //  just to check if nice really changed
-//                        Log.i(TAG,"second nice "+getNice(currentPID,true)+" PID is"+currentPID );
 
 //                        createNotification();
 /*                        if (    (printForegroundTask().equals("com.ea.games.r3_row")) || (printForegroundTask().equals("com.MikaMobile.Battleheart"))
@@ -397,16 +388,22 @@ public class GS_Service extends IntentService {
         return RunCommand(file);
     }
 
+    private String getAllFreq(){
+        String[] cmd = {"cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq"};
+        return RunCommand(cmd);
+    }
+
     private String getFreq(String cpuType) {
-//        String[] file = new String[8];
-        if (cpuType.equals("little")){
-                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq"};
+        if (cpuType.equals("little")) {
+            String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq"};
+//                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"};
             return RunCommand(file);
-        }
-        else {
+        } else {
             String[] file = {"cat /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq"};
+//                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"};
             return RunCommand(file);
         }
+
 
     }
 
@@ -491,7 +488,7 @@ public class GS_Service extends IntentService {
 //        String inc = Integer.toString(newNice);
 
 //        String cmd[] = {"toybox renice -p -n "+inc+" "+pid};
-        String cmd[] = {"renice -n "+inc+" "+pid};
+        String cmd[] = {"toybox renice -n "+inc+" "+pid};
         RunCommand(cmd);
     }
 

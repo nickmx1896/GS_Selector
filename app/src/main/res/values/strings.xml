@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FYP Application</string>
+    <string name="app_name">GS Selector</string>
     
     <string-array name="governors">
         <item>smartmax</item>
