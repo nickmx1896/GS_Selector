@@ -5,39 +5,31 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Process;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
+import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 
-public class GS_Service extends IntentService {
+public class GS_Service extends IntentService{
 
     private static final String TAG = "com.example.nickm.fypapplication";
-
-
+    public String prevApp;
+    static boolean firstGovChangeEntry = true;
     //  IntentService Constructor
     public GS_Service() {
         super("GSIntentService");
@@ -47,17 +39,24 @@ public class GS_Service extends IntentService {
     //  handles intent, need to extend IntentService instead
     @Override
     protected void onHandleIntent(Intent intent) {
+        HashMap<String, String> map = new HashMap<>();
+        Integer time = 1000;
+        Integer time_getFreq = 0;
+        map.put("com.ea.games.r3_row","game1");
+        map.put("com.gameloft.android.ANMP.GloftNOHM","game2");
+        map.put("com.MikaMobile.Battleheart","game3");
+        map.put("com.cyanogenmod.trebuchet","launcher");
         int cnt = 0;
+
+        //  following two lists if fore retrieving the frequency levels
         ArrayList<String> littleList = new ArrayList<>();
         ArrayList<String> bigList = new ArrayList<>();
         while (true) {
-            long futureTime = System.currentTimeMillis() + 1000;
+            long futureTime = System.currentTimeMillis() + time;
 
-            /*  the following code will be run every 0.5s
-                use this section to monitor certain aspects of the cpu
+            /*  the following code will be run every time milliseconds
 
-
-
+                Games and apps that we going to test
                 Games:
                     com.ea.games.r3_row
                     com.MikaMobile.Battleheart
@@ -69,38 +68,95 @@ public class GS_Service extends IntentService {
                     com.instagram.android
 
             */
-            while (System.currentTimeMillis() < futureTime) {
+            while (System.currentTimeMillis() < futureTime) {   //  maybe activate if foreground app change?
                 synchronized (this) {
                     try {
+                        //  getPID will retrieve the PID of the current foreground app
                         String currentPID = getPID();
                         wait(futureTime - System.currentTimeMillis());
-                        Log.i(TAG, Integer.toString(cnt)+" "+printForegroundTask()+" nice: "+getNice(currentPID,true)
-                                );
-//                        if(printForegroundTask().equals("com.gameloft.android.ANMP.GloftNOHM")){
-/*                            if (!(getNice(currentPID, true).equals("-10"))) {
-                                ChangeNice(currentPID, -10);
-                            }*/
-                        if (true){
-                            littleList.add(getFreq("little"));
-                            bigList.add(getFreq("big"));
-                            cnt=cnt+1;
-                        }
-                        if(cnt==60){
-                            Log.i(TAG,"CPUFreq List\n"+"little\n"+print(littleList)+"\nbig\n"+print(bigList));
+
+                        Log.i(TAG, Integer.toString(cnt) + " " + printForegroundTask() + " nice: " + getNice(currentPID,true)+" PID:"+currentPID
+                +"\n"+"little: "+getGovernor("little")+"big: "+getGovernor("big"));
+/*                        ################################################################################################################################
+                        ################################################################################################################################
+                        ################################################################################################################################
+                        ################################################################################################################################
+                        ################################################################################################################################*/
+                        //  check the value for each key
+                        //  the key in the map is the package name which will be checked against the current running foreground app
+                        //  the following should also change nice values etc
+
+
+                        //  check if the foreground app has changed
+                        if (!printForegroundTask().equals(prevApp) || firstGovChangeEntry) {
+                            firstGovChangeEntry = false;
+                            //  if the current task has a genre present, we check what governor to swap to
+                            if (map.get(printForegroundTask()) != null) {
+                                Log.i(TAG,"entered switch, prevApp is:"+prevApp+" current is:"+printForegroundTask());
+                                switch (map.get(printForegroundTask())) {
+                                    case "game1":   //  require the best performance
+                                        //  row
+                                        ChangeGovernors("performance");
+                                        break;
+                                    case "game2":   //  require not so much
+                                        //  nova
+                                        ChangeGovernors("interactive");
+                                        break;
+                                    case "game3":   //  more for older games that don't need much power
+                                        //  battleheart
+                                        ChangeBigGovernors("smartassV2");
+                                        ChangeLittleGovernors("interactive");
+                                        break;
+                                    case "launcher":    //  do nothing if the foreground is the fyp app
+//                                    setLowest();
+                                        ChangeGovernors("smartassV2");
+                                        break;
+                                    default:
+                                        ChangeGovernors("smartassV2");
+                                        break;
+                                }
+                            }
+                            //  for any other app that don't have a genre yet
+                            else{
+                                ChangeGovernors("smartassV2");
+                            }
                         }
 
-//                        createNotification();
-/*                        if (    (printForegroundTask().equals("com.ea.games.r3_row")) || (printForegroundTask().equals("com.MikaMobile.Battleheart"))
-                                || (printForegroundTask().equals("com.google.android.youtube")) ) {
-                            Log.i(TAG,"ya");
-                            ChangeGovernors("smartassV2");
-                            ChangeNice(getPID(),-20);
-                        }
-                        else{
-                            Log.i(TAG,"no leh");
-                            ChangeGovernors("smartassV2");
+                        prevApp = printForegroundTask();
+/*                        ################################################################################################################################
+                        ################################################################################################################################
+                        ################################################################################################################################
+                        ################################################################################################################################
+                        ################################################################################################################################*/
+
+                        //  does debugging or make changes depending on the app name
+/*                        if (printForegroundTask().equals("com.ea.games.r3_row")) {
+*//*                      ################################################################################################################################
+                        this part changes nice depending on the app, will be implemented in the switch case above
+                        ################################################################################################################################*//*
+//                            if (!(getNice(currentPID, true).equals("-20"))) {
+//                                ChangeNice(currentPID, -20);
+//                                Log.i(TAG, "changed");
+//                            }
+//                            else {
+//                                Log.i(TAG, "no change");
+//                            }
+*//*//*                       ################################################################################################################################
+                          end of change of nice value
+                          ################################################################################################################################*//*
+//                          get clock frequency info for 60 counts
+                            littleList.add(getFreq("little"));
+                            bigList.add(getFreq("big"));
+//                            counter to check if the app running
+                            cnt = cnt + 1;
+                            time_getFreq = time_getFreq + time;
                         }*/
-//                        createNotification();
+
+                        //  following is to print the frequency after 90 seconds passed in that game/app
+//                        if(time_getFreq == 60000){
+//                            Log.i(TAG,"CPUFreq List\n"+"little\n"+print(littleList)+"\nbig\n"+print(bigList));
+//                        }
+
                     } catch (Exception e) {
                     }
                 }
@@ -123,6 +179,26 @@ public class GS_Service extends IntentService {
                 "-c",
                 "top -m 1000 -d 1 -n 1 | grep \""+pid+"\" "};
         return RunCommand(cmd);
+    }
+
+    public void governorAlgo(){
+        //  built on the premise that my service decides what app should use what governor
+            //  based on internal testings --> the report table
+
+        //  check if genre is game or what not
+            //  maybe can split game into 3 different performance based sub sections
+            //  game1 --> highest performance, game3 --> lowest performance
+
+        //  this can be done by calling a statically defined dictionary or table, probably a Map<String><String>
+            //  this map should be defined statically somewhere in the code, then constantly updated as more apps come
+            //  check the package name and see its label
+
+        //  while label exists, switch label, each label, change the governor accordingly
+            //  service class should run this algo
+
+
+        //  can include the changing of nice values or cgroups in the future
+            //  based on testing as well to determine what apps require what cgroup or nice configs
     }
 
     //  this is for the normal Service with running threads
@@ -304,8 +380,7 @@ public class GS_Service extends IntentService {
                         //  addLine each line is an info displayed inside the Inbox Style text box
                         .addLine("big Governor:   " + getGovernor("big"))
                         .addLine("LITTLE Governor:   " + getGovernor("little"))
-                        .addLine("Current App: "+printForegroundTask())
-                        .addLine(getNice(getPID(),false)))
+                        .addLine("Current App: "+printForegroundTask()))
                 .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);
@@ -362,6 +437,19 @@ public class GS_Service extends IntentService {
     //###################################################################################
     //  everything here onwards is for getting cpu related stuff
 
+    public void setLowest(){
+        String[] cmd= {"echo 442000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed",
+                "echo 442000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_setspeed",
+                "echo 442000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_setspeed",
+                "echo 442000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_setspeed",
+                "echo 520000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_setspeed",
+                "echo 520000 > /sys/devices/system/cpu/cpu5/cpufreq/scaling_setspeed",
+                "echo 520000 > /sys/devices/system/cpu/cpu6/cpufreq/scaling_setspeed",
+                "echo 520000 > /sys/devices/system/cpu/cpu7/cpufreq/scaling_setspeed",};
+        RunCommand(cmd);
+        ChangeGovernors("userspace");
+    }
+
     public void ChangeGovernors(String governor) {
         String[] newGovernor = {"echo " + governor + " > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
                 "echo " + governor + " > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
@@ -373,7 +461,20 @@ public class GS_Service extends IntentService {
                 "echo " + governor + " > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
         RunCommand(newGovernor);
     }
-
+    public void ChangeBigGovernors(String governor) {
+        String[] newGovernor = {"echo " + governor + " > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor"};
+        RunCommand(newGovernor);
+    }
+    public void ChangeLittleGovernors(String governor) {
+        String[] newGovernor = {"echo " + governor + " > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor",
+                "echo " + governor + " > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor"};
+        RunCommand(newGovernor);
+    }
     private String getGovernor(String g) {
         String gov;
         if (g == "big") {
@@ -384,7 +485,7 @@ public class GS_Service extends IntentService {
         }
 
         // cat command to retrieve current governor information
-        String[] file = {"cat /sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor","cat /sys/devices/system/cpu/cpu"+gov+"/cpufreq/cpuinfo_max_freq"};
+        String[] file = {"cat /sys/devices/system/cpu/cpu"+gov+"/cpufreq/scaling_governor"};
         return RunCommand(file);
     }
 
@@ -431,6 +532,13 @@ public class GS_Service extends IntentService {
         return RunCommand(cmd);
     }
 
+    public String getSpecificPID(String process){
+        String cmd[] = {"pidof "+process};
+        String pid = RunCommand(cmd);
+        String returnPID = pid.replace("\n", "").replace("\r", "");
+        return returnPID;
+    }
+
     public String getPID(){
         String cmd[] = {"pidof "+printForegroundTask()};
         String pid = RunCommand(cmd);
@@ -438,13 +546,21 @@ public class GS_Service extends IntentService {
         return returnPID;
     }
 
+    public String getSpecificNice(String process){
+        String[] cmd = {"top -n 1 | grep "+process};
+        return RunCommand(cmd);
+    }
+
     public String getNice (String PID, Boolean onlyNice){
         String niceValue = "";
         //  if want to show other information like name, pid, priority
         if (onlyNice==false){
-            String[] nice = {"toybox ps -o PID,NI,NAME,PRI,GROUP " + "-p " + PID};
-            niceValue =  RunCommand(nice);
-            return niceValue;
+//            String[] nice = {"toybox ps -o PID,NI,NAME,PRI,GROUP " + "-p " + PID};
+
+            //  this code gets a specific nice for 1 iteration
+            String[] nice = {"top -n 1 | grep row"};
+            return RunCommand(nice);
+
         }
         //  else just show the nice value
         else{
@@ -454,6 +570,7 @@ public class GS_Service extends IntentService {
             return output[1];
         }
     }
+
 
 
 

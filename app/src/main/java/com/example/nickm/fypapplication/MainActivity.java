@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.Timer;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // view object for the notification
         View notification = new View(this);
+
 
 
 
@@ -327,9 +329,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.changeNice:
                 //  change the niceness of current foreground to -20
-                ChangeNice(getPID(),-15);
+//                ChangeNice(getPID(),-15);
+                String[] randomCommand = new String[8];
+                for (int i = 0; i<4;i++){
+                    randomCommand[i]="echo 650000 > /sys/devices/system/cpu/cpu"+i+"/cpufreq/scaling_setspeed";
+                }
+                for (int j = 4; j<8;j++){
+                    randomCommand[j]="echo 728000 > /sys/devices/system/cpu/cpu"+j+"/cpufreq/scaling_setspeed";
+                }
 //                View p2 = new View(this);
 //                showAlert(p2);
+                RunCommand(randomCommand);
                 break;
 
             default:
