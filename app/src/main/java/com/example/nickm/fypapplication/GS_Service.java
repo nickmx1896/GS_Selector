@@ -42,11 +42,12 @@ public class GS_Service extends IntentService{
         HashMap<String, String> map = new HashMap<>();
         Integer time = 1000;
         Integer time_getFreq = 0;
-        map.put("com.ea.games.r3_row","game1");
-        map.put("com.gameloft.android.ANMP.GloftNOHM","game2");
-        map.put("com.MikaMobile.Battleheart","game3");
-        map.put("com.cyanogenmod.trebuchet","launcher");
-        int cnt = 0;
+        map.put("com.ea.games.r3_row", "h_req_game");
+        map.put("com.gameloft.android.ANMP.GloftNOHM", "l_req_game");
+        map.put("com.MikaMobile.Battleheart", "l_req_game");
+        map.put("com.facebook.katana", "l_req_app");
+        map.put("com.instagram.android", "l_req_app");
+        map.put("com.cyanogenmod.trebuchet", "launcher");
 
         //  following two lists if fore retrieving the frequency levels
         ArrayList<String> littleList = new ArrayList<>();
@@ -75,12 +76,12 @@ public class GS_Service extends IntentService{
                         String currentPID = getPID();
                         wait(futureTime - System.currentTimeMillis());
 
-                        Log.i(TAG, Integer.toString(cnt) + " " + printForegroundTask() + " nice: " + getNice(currentPID,true)+" PID:"+currentPID
-                +"\n"+"little: "+getGovernor("little")+"big: "+getGovernor("big"));
+//                        Log.i(TAG, printForegroundTask()
+//                                + " nice: " + getNice(currentPID, true)
+//                                + " PID:" + currentPID
+//                                + "\nlittle governor: " + getGovernor("little")+getFreq("little",true)
+//                                + "\nbig governor: " + getGovernor("big")+getFreq("big",true));
 /*                        ################################################################################################################################
-                        ################################################################################################################################
-                        ################################################################################################################################
-                        ################################################################################################################################
                         ################################################################################################################################*/
                         //  check the value for each key
                         //  the key in the map is the package name which will be checked against the current running foreground app
@@ -91,73 +92,76 @@ public class GS_Service extends IntentService{
                         if (!printForegroundTask().equals(prevApp) || firstGovChangeEntry) {
                             firstGovChangeEntry = false;
                             //  if the current task has a genre present, we check what governor to swap to
+//                            Log.i(TAG, "app change, prevApp is:" + prevApp + " current is:" + printForegroundTask());
                             if (map.get(printForegroundTask()) != null) {
-                                Log.i(TAG,"entered switch, prevApp is:"+prevApp+" current is:"+printForegroundTask());
                                 switch (map.get(printForegroundTask())) {
-                                    case "game1":   //  require the best performance
-                                        //  row
-                                        ChangeGovernors("performance");
+                                    //  low requirements game
+                                    case "l_req_game":
+                                        ChangeLittleGovernors("interactive");
+                                        ChangeBigGovernors("smartassV2");
                                         break;
-                                    case "game2":   //  require not so much
-                                        //  nova
+
+                                    //  high requirements app
+                                    case "h_req_game":
                                         ChangeGovernors("interactive");
                                         break;
-                                    case "game3":   //  more for older games that don't need much power
-                                        //  battleheart
-                                        ChangeBigGovernors("smartassV2");
-                                        ChangeLittleGovernors("interactive");
+
+                                    //  low requirements app
+                                    case "l_req_app":
+                                        ChangeGovernors("conservative");
                                         break;
-                                    case "launcher":    //  do nothing if the foreground is the fyp app
-//                                    setLowest();
-                                        ChangeGovernors("smartassV2");
+
+                                    //  high requirements app
+                                    case "h_req_app":
+                                        break;
+
+                                    case "launcher":
+                                        ChangeLittleGovernors("conservative");
+                                        ChangeBigGovernors("smartassV2");
                                         break;
                                     default:
-                                        ChangeGovernors("smartassV2");
                                         break;
                                 }
                             }
                             //  for any other app that don't have a genre yet
-                            else{
-                                ChangeGovernors("smartassV2");
+                            else {
+                                ChangeGovernors("userspace");
                             }
                         }
 
                         prevApp = printForegroundTask();
 /*                        ################################################################################################################################
-                        ################################################################################################################################
-                        ################################################################################################################################
-                        ################################################################################################################################
                         ################################################################################################################################*/
 
                         //  does debugging or make changes depending on the app name
-/*                        if (printForegroundTask().equals("com.ea.games.r3_row")) {
-*//*                      ################################################################################################################################
-                        this part changes nice depending on the app, will be implemented in the switch case above
-                        ################################################################################################################################*//*
-//                            if (!(getNice(currentPID, true).equals("-20"))) {
-//                                ChangeNice(currentPID, -20);
-//                                Log.i(TAG, "changed");
+//                        if (printForegroundTask().equals("com.instagram.android")) {
+//
+//                            //##############    change nice value   ###############
+////                            if (!(getNice(currentPID, true).equals("-20"))) {
+////                                ChangeNice(currentPID, -20);
+////                                Log.i(TAG, "changed");
+////                            }
+////                            else {
+////                                Log.i(TAG, "no change");
+////                            }
+//                            //##############    end of nice value changes  ###############
+//
+//                            //##############    get clock frequency info    ##############
+//                            littleList.add(getFreq("little",false));
+//                            bigList.add(getFreq("big",false));
+//                            time_getFreq = time_getFreq + time;
+//                            //  retrieve clock speeds for 60secs
+//                            if(time_getFreq == 60000){
+//                                Log.i(TAG,"CPUFreq List\n"
+//                                        +"little\n"+print(littleList)
+//                                        +"big\n"+print(bigList));
+//                                time_getFreq = 0;   //  reset the timer for getting frequency
 //                            }
-//                            else {
-//                                Log.i(TAG, "no change");
-//                            }
-*//*//*                       ################################################################################################################################
-                          end of change of nice value
-                          ################################################################################################################################*//*
-//                          get clock frequency info for 60 counts
-                            littleList.add(getFreq("little"));
-                            bigList.add(getFreq("big"));
-//                            counter to check if the app running
-                            cnt = cnt + 1;
-                            time_getFreq = time_getFreq + time;
-                        }*/
-
-                        //  following is to print the frequency after 90 seconds passed in that game/app
-//                        if(time_getFreq == 60000){
-//                            Log.i(TAG,"CPUFreq List\n"+"little\n"+print(littleList)+"\nbig\n"+print(bigList));
+//                            //##############   end of get clock frequency info    ##############
 //                        }
-
-                    } catch (Exception e) {
+                    }   //  end of entire try block
+                    catch (Exception e) {
+                        //  catch exception for try block
                     }
                 }
             }
@@ -393,6 +397,7 @@ public class GS_Service extends IntentService{
         java.lang.Process process;
         try {
             //  run as root
+
             process = Runtime.getRuntime().exec("su");
 
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
@@ -437,17 +442,35 @@ public class GS_Service extends IntentService{
     //###################################################################################
     //  everything here onwards is for getting cpu related stuff
 
-    public void setLowest(){
-        String[] cmd= {"echo 442000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed",
-                "echo 442000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_setspeed",
-                "echo 442000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_setspeed",
-                "echo 442000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_setspeed",
-                "echo 520000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_setspeed",
-                "echo 520000 > /sys/devices/system/cpu/cpu5/cpufreq/scaling_setspeed",
-                "echo 520000 > /sys/devices/system/cpu/cpu6/cpufreq/scaling_setspeed",
-                "echo 520000 > /sys/devices/system/cpu/cpu7/cpufreq/scaling_setspeed",};
-        RunCommand(cmd);
-        ChangeGovernors("userspace");
+    public void setLowest(String cpu){
+
+        if (cpu.equals("both")) {
+            String[] cmd = new String[]{"echo 442000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed",
+                    "echo 442000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_setspeed",
+                    "echo 442000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_setspeed",
+                    "echo 442000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu5/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu6/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu7/cpufreq/scaling_setspeed"};
+            RunCommand(cmd);
+        }
+        else if (cpu.equals("little")) {
+            String[] cmd2 = new String[]{"echo 442000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed",
+                    "echo 442000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_setspeed",
+                    "echo 442000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_setspeed",
+                    "echo 442000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_setspeed"};
+            RunCommand(cmd2);
+        }
+        else if (cpu.equals("big")) {
+            String[] cmd3 = new String[]{"echo 520000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu5/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu6/cpufreq/scaling_setspeed",
+                    "echo 520000 > /sys/devices/system/cpu/cpu7/cpufreq/scaling_setspeed"};
+            RunCommand(cmd3);
+        }
+
+//        ChangeGovernors("userspace");
     }
 
     public void ChangeGovernors(String governor) {
@@ -494,16 +517,33 @@ public class GS_Service extends IntentService{
         return RunCommand(cmd);
     }
 
-    private String getFreq(String cpuType) {
-        if (cpuType.equals("little")) {
-            String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq"};
-//                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"};
-            return RunCommand(file);
-        } else {
-            String[] file = {"cat /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq"};
-//                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"};
-            return RunCommand(file);
+    private String getFreq(String cpuType, boolean getAll) {
+        //  scaling_cur_freq is what the kernel think the freq is
+        if (getAll){
+            if (cpuType.equals("little")) {
+                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq",
+                        "cat /sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_cur_freq",
+                        "cat /sys/devices/system/cpu/cpu2/cpufreq/cpuinfo_cur_freq",
+                        "cat /sys/devices/system/cpu/cpu3/cpufreq/cpuinfo_cur_freq"};
+                return RunCommand(file);
+            } else {
+                String[] file = {"cat /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq",
+                        "cat /sys/devices/system/cpu/cpu5/cpufreq/cpuinfo_cur_freq",
+                        "cat /sys/devices/system/cpu/cpu6/cpufreq/cpuinfo_cur_freq",
+                        "cat /sys/devices/system/cpu/cpu7/cpufreq/cpuinfo_cur_freq"};
+                return RunCommand(file);
+            }
         }
+        else {
+            if (cpuType.equals("little")) {
+                String[] file = {"cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq"};
+                return RunCommand(file);
+            } else {
+                String[] file = {"cat /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq"};
+                return RunCommand(file);
+            }
+        }
+
 
 
     }
