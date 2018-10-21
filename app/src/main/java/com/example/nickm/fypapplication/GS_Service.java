@@ -39,15 +39,16 @@ public class GS_Service extends IntentService{
     //  handles intent, need to extend IntentService instead
     @Override
     protected void onHandleIntent(Intent intent) {
-        HashMap<String, String> map = new HashMap<>();
         Integer time = 1000;
         Integer time_getFreq = 0;
+
+        HashMap<String, String> map = new HashMap<>();
         map.put("com.ea.games.r3_row", "h_req_game");
         map.put("com.gameloft.android.ANMP.GloftNOHM", "l_req_game");
         map.put("com.MikaMobile.Battleheart", "l_req_game");
-        map.put("com.facebook.katana", "l_req_app");
+        map.put("com.facebook.katana", "h_req_app");
         map.put("com.instagram.android", "l_req_app");
-        map.put("com.cyanogenmod.trebuchet", "launcher");
+//        map.put("com.cyanogenmod.trebuchet", "launcher");
 
         //  following two lists if fore retrieving the frequency levels
         ArrayList<String> littleList = new ArrayList<>();
@@ -76,11 +77,15 @@ public class GS_Service extends IntentService{
                         String currentPID = getPID();
                         wait(futureTime - System.currentTimeMillis());
 
-//                        Log.i(TAG, printForegroundTask()
+                        Log.i(TAG, "\nCurrent Application: "+printForegroundTask()
 //                                + " nice: " + getNice(currentPID, true)
-//                                + " PID:" + currentPID
-//                                + "\nlittle governor: " + getGovernor("little")+getFreq("little",true)
-//                                + "\nbig governor: " + getGovernor("big")+getFreq("big",true));
+//                                + "\nPID: " + currentPID
+//                                + "\nlittle governor: " + getGovernor("little")
+//                                +   getFreq("little",true)
+//                                + "\nbig governor: " + getGovernor("big")
+//                                +   getFreq("big",true)
+                                + "\ncgroup:\n"+getCgroup(currentPID)
+                        );
 /*                        ################################################################################################################################
                         ################################################################################################################################*/
                         //  check the value for each key
@@ -98,10 +103,10 @@ public class GS_Service extends IntentService{
                                     //  low requirements game
                                     case "l_req_game":
                                         ChangeLittleGovernors("interactive");
-                                        ChangeBigGovernors("smartassV2");
+                                        ChangeBigGovernors("conservative");
                                         break;
 
-                                    //  high requirements app
+                                    //  high requirements game
                                     case "h_req_game":
                                         ChangeGovernors("interactive");
                                         break;
@@ -113,12 +118,13 @@ public class GS_Service extends IntentService{
 
                                     //  high requirements app
                                     case "h_req_app":
+                                        ChangeGovernors("interactive");
                                         break;
 
-                                    case "launcher":
-                                        ChangeLittleGovernors("conservative");
-                                        ChangeBigGovernors("smartassV2");
-                                        break;
+//                                    case "launcher":
+//                                        ChangeLittleGovernors("conservative");
+//                                        ChangeBigGovernors("smartassV2");
+//                                        break;
                                     default:
                                         break;
                                 }
@@ -134,16 +140,12 @@ public class GS_Service extends IntentService{
                         ################################################################################################################################*/
 
                         //  does debugging or make changes depending on the app name
-//                        if (printForegroundTask().equals("com.instagram.android")) {
+/*                        if (printForegroundTask().equals("com.ea.games.r3_row")) {
 //
 //                            //##############    change nice value   ###############
-////                            if (!(getNice(currentPID, true).equals("-20"))) {
-////                                ChangeNice(currentPID, -20);
-////                                Log.i(TAG, "changed");
-////                            }
-////                            else {
-////                                Log.i(TAG, "no change");
-////                            }
+                            if (!(getNice(currentPID, true).equals("15"))) {
+                                ChangeNice(currentPID, 15);
+                            }
 //                            //##############    end of nice value changes  ###############
 //
 //                            //##############    get clock frequency info    ##############
@@ -157,8 +159,8 @@ public class GS_Service extends IntentService{
 //                                        +"big\n"+print(bigList));
 //                                time_getFreq = 0;   //  reset the timer for getting frequency
 //                            }
-//                            //##############   end of get clock frequency info    ##############
-//                        }
+////                            //##############   end of get clock frequency info    ##############
+                        }*/
                     }   //  end of entire try block
                     catch (Exception e) {
                         //  catch exception for try block
@@ -185,25 +187,6 @@ public class GS_Service extends IntentService{
         return RunCommand(cmd);
     }
 
-    public void governorAlgo(){
-        //  built on the premise that my service decides what app should use what governor
-            //  based on internal testings --> the report table
-
-        //  check if genre is game or what not
-            //  maybe can split game into 3 different performance based sub sections
-            //  game1 --> highest performance, game3 --> lowest performance
-
-        //  this can be done by calling a statically defined dictionary or table, probably a Map<String><String>
-            //  this map should be defined statically somewhere in the code, then constantly updated as more apps come
-            //  check the package name and see its label
-
-        //  while label exists, switch label, each label, change the governor accordingly
-            //  service class should run this algo
-
-
-        //  can include the changing of nice values or cgroups in the future
-            //  based on testing as well to determine what apps require what cgroup or nice configs
-    }
 
     //  this is for the normal Service with running threads
     //  to implement this, extend Service instead of IntentService
@@ -635,16 +618,14 @@ public class GS_Service extends IntentService{
     public void ChangeNice(String pid, int newNice){
 
         //  command to change nice value of pid by incrementing
-        int increment = 0;
+        int increment;
 
         //  need to calculate increment by getting current nice value
         increment = newNice - Integer.parseInt(getNice(getPID(),true));
 
         //  convert the integer to string
         String inc = Integer.toString(increment);
-//        String inc = Integer.toString(newNice);
 
-//        String cmd[] = {"toybox renice -p -n "+inc+" "+pid};
         String cmd[] = {"toybox renice -n "+inc+" "+pid};
         RunCommand(cmd);
     }
